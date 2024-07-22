@@ -1,0 +1,34 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+Inventory
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% block content %}
+{% endblock content %}
+{% endblock %}
+{% block js %}
+
+{% endblock js %}

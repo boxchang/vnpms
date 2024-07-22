@@ -1,0 +1,66 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+{% block title %}
+    {% trans "test result" %}
+{% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+<li class="breadcrumb-item"><a href="{% url 'project_manage' pk=o_request.project.pk %}">{{ o_request.project.name }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.title }}</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% trans "test result" %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-1"></div>
+  <div class="col-10">
+      <div class="card">
+          <div class="card-header">
+            {% trans "test result" %}
+          </div>
+          <div class="card-body">
+              需求單:<a href="/requests/{{ o_request.request_no }}" target="_blank">{{ o_request.request_no }}</a><br />
+              測試說明:{{ desc|safe }}
+              測試結果:
+              {% for result in o_result %}
+              <div class="mt-3 p-3 border-secondary border">
+
+                  <div class="row m-3">
+                      <div class="col-3">
+                          測試人:{{ result.tester }}
+                      </div>
+                      <div class="col-3">
+                          測試日期:{{ result.create_at|date:"Y-m-d H:i:s" }}
+                      </div>
+                      <div class="col-3">
+                          測試結果:{{ result.result }}
+                      </div>
+                  </div>
+                  {% for detail in result.result_detail.all %}
+                  <div class="row border-top pt-3 m-3">
+                      <div class="col-8">
+                        {{ detail.item.item }}
+                      </div>
+                      <div class="col-4">
+                        {{ detail.item_result }}
+                      </div>
+                  </div>
+                  {% endfor %}
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
+  <div class="col-1"></div>
+</div>
+{% endblock content %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock js %}
+
+{% block css %}
+
+{% endblock %}

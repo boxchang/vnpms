@@ -1,0 +1,384 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+$("#id_sap_emp_no").focus();
+
+$("#id_cfm_code").on("change", function() {
+  cfm_code_change();
+});
+
+$("#id_sap_emp_no").on("change", function() {
+  sap_emp_no_change();
+});
+
+//Move to Confirm Code after Emp No Enter
+$(':input').keydown(function (e){
+    if(e.keyCode == 13){
+        if($("#id_sap_emp_no").val().length>0 && $("#id_cfm_code").val().length==0){
+          $("#id_cfm_code").focus();
+        }else{
+            // focus next input elements
+            $(':input:visible:enabled:eq(' + ($(':input:visible:enabled').index(this) + 1) + ')').focus();
+        }
+        e.preventDefault();
+    }
+})
+
+//F2 trigger submit
+function hotkey()
+{
+    var e=window.event;
+    if(e.keyCode == 113)
+    {
+        $("#submit-id-submit").click();
+    }
+}// end hotkey
+
+document.onkeydown = hotkey; //當onkeydown 事件發生時調用hotkey函數
+
+//物料異動=================
+$("#button-id-mtr_change").css({"visibility":"hidden"});
+$("#consumption").css({"visibility":"hidden"});
+//=================物料異動
+
+{% endblock ready %}
+{% block js %}
+<script>
+    function sap_emp_no_change() {
+        $.ajax({
+            url: '{% url 'get_user_info_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "record_dt": $("#id_record_dt").val(), "sap_emp_no": $("#id_sap_emp_no").val()},
+            success: function(data) {
+                if(typeof(data.username)==="undefined"){
+                    alert("{% trans 'SAP employee number is not correct or no data' %}");
+                }else{
+                    $("#id_username").val(data.username);
+                    $("#id_emp_no").val(data.emp_no);
+                    $("#id_worked_labor_time").val(data.worked_labor_time);
+                }
+            }
+        });
+    }
+
+    function form_init() {
+        $("#id_plant").val('');
+        $("#id_wo_no").val('');
+        $("#id_item_no").val('');
+        $("#id_spec").val('');
+        $("#id_step_code").val('');
+        $("#id_step_name").val('');
+        $("#id_ctr_code").val('');
+        $("#id_labor_time").val('');
+        $("#id_mach_time").val('');
+        $("#id_good_qty").val('');
+        $("#hid_std_labor_time").val('');
+        $("#hid_worked_labor_time").val('');
+        $("#hid_worked_good_qty").val('');
+        $("#hid_wo_qty").val('');
+        $("#hid_step_no").val('');
+        $("#hid_work_center").val('');
+    }
+
+    function cfm_code_change() {
+        form_init();
+        $.ajax({
+            url: '{% url 'get_step_info_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "cfm_code": $("#id_cfm_code").val(), "wo_no": $("#id_wo_no").val()},
+            success: function(data) {
+                //第一站可以更改物料用量, Ex 0010, 0015(重工)
+                if(data.step_no != undefined && data.step_no.substring(0,3) == "001" && data.plant == "302B"){
+                    if(data.consumption_exist == "Y") {
+                        $("#button-id-mtr_change").val("物料已報工");
+                        $("#button-id-mtr_change").css({"visibility": ""});
+                        $("#button-id-mtr_change").attr({"disabled": true});
+                    }else{
+                        $("#button-id-mtr_change").css({"visibility": ""});
+                    }
+                    $("#consumption").css({"visibility": ""});
+                } else {
+                    $("#button-id-mtr_change").css({"visibility":"hidden"});
+                    $("#consumption").css({"visibility":"hidden"});
+                }
+
+                if(data.first_step_done=="N") {
+                    alert("{% trans 'The first step has been not finished yet' %}");
+                    //$("#id_cfm_code").val('');
+                    //return false; 只提醒但不卡住，上線後再開啟
+                }
+
+                if(!data.step_name) {
+                    msg = "{% trans 'There is no this confirmation code information.' %}";
+                    alert(msg);
+                    return false;
+                }
+
+                var init_good_qty = Math.round(parseFloat(data.good_qty) - parseFloat(data.worked_good_qty) - parseFloat(data.worked_ng_qty));
+                var init_labor_time = Math.round(parseFloat(data.labor_time) - parseFloat(data.worked_labor_time));
+                var init_mach_time = Math.round(parseFloat(data.mach_time) - parseFloat(data.worked_mach_time));
+
+                $("#id_plant").val(data.plant);
+                $("#id_wo_no").val(data.wo_no);
+                $("#id_item_no").val(data.item_no);
+                $("#id_spec").val(data.spec);
+                $("#id_step_code").val(data.step_code);
+                $("#id_step_name").val(data.step_name);
+                $("#id_ctr_code").val(data.ctr_code);
+                $("#id_labor_time").val(init_labor_time);
+                $("#id_mach_time").val(init_mach_time);
+                $("#id_good_qty").val(init_good_qty);
+                $("#id_step_no").val(data.step_no);
+                $("#id_work_center").val(data.work_center);
+                $("#hid_std_labor_time").val(data.labor_time);
+                $("#hid_worked_labor_time").val(data.worked_labor_time);
+                $("#hid_worked_good_qty").val(data.worked_good_qty);
+                $("#hid_wo_qty").val(data.wo_qty);
+
+                get_mach_info(data.step_code);
+                get_mtr_info($("#id_cfm_code").val());
+            }
+        });
+    }
+
+    function get_mach_info(step_code){
+        $.ajax({
+            url: '{% url 'get_mach_info_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "step_code": $("#id_step_code").val()},
+            success: function(data) {
+                if(data['html'] != ""){
+                    $("#id_mach_code").html(data['html']);
+                    $("#id_mach_code").attr("required", "");
+                }
+
+            }
+        });
+    }
+
+    function get_mtr_info(cfm_code){
+        $.ajax({
+            url: '{% url 'get_mtr_info_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "cfm_code": cfm_code},
+            success: function(data) {
+                $('#consumption tbody').html(''); //初始化清空表格內容
+                data = eval(data);
+                for(var j=0;j<data.length;j++){
+                    $('#consumption').append("<tr><td>" + data[j].wo_mtrl_no + "</td><td>" + data[j].mtr_no + "</td><td>" + data[j].qty + "</td><td></td></tr>");
+                }
+            }
+        });
+    }
+
+    function validation() {
+        var labor_time = parseFloat($("#id_labor_time").val());
+        var mach_time = parseFloat($("#id_mach_time").val());
+        var std_labor_time = parseFloat($("#hid_std_labor_time").val());
+        var good_qty = parseFloat($("#id_good_qty").val());
+        var bad_qty = parseFloat($("#id_ng_qty").val());
+        var wo_qty = parseFloat($("#hid_wo_qty").val());
+        var worked_labor_time = parseFloat($("#hid_worked_labor_time").val());
+        var worked_good_qty = parseFloat($("#hid_worked_good_qty").val());
+        var step_name = $("#id_step_name").val();
+        var step_code = $("#id_step_code").val();
+        var mach_code = $("#id_mach_code").val();
+        var comment = $('#id_comment').val();
+
+        //SAP匯入是用CSV，不能有逗號
+        if(comment.indexOf(',') > -1) {
+            alert("因與SAP整合用CSV，備註不能有逗號");
+            return false;
+        }
+
+        if(labor_time<0 || good_qty<0 || bad_qty<0 || mach_time<0) {
+            msg = "數字不能負數";
+            alert(msg);
+            return false;
+        }
+
+        if(step_name=="") {
+            msg = "{% trans 'There is no this confirmation code information.' %}";
+            alert(msg);
+            return false;
+        }
+
+        if(step_code=="TWA027" && mach_code==""){
+            msg = "{% trans 'Please select the working machine.' %}";
+            alert(msg);
+            return false;
+        }
+
+        {% if not perms.users.perm_workhour %}
+        //累計報工數量大於工單數量
+        var total_qty = worked_good_qty + good_qty;
+        if(total_qty > wo_qty) {
+            msg = "{% trans 'The operation quantity cannot over the production order quantity.' %}";
+            alert(msg);
+            return false;
+        }
+        {% endif %}
+
+        //使用confirm防呆一定要放在最下方
+        if(labor_time>std_labor_time*1.1){
+            msg = "{% trans 'Remind that total recorded time {labor_time} already over 10% of the standard time({standard_time}).' %}";
+            msg = msg.replace("{labor_time}", labor_time);
+            msg = msg.replace("{standard_time}", Math.round(std_labor_time*1.1*10)/10);
+            return confirm(msg);
+        }
+
+    }
+
+    //物料耗用==================================================
+    function popup() {
+        $('#exampleModal').modal('show');
+    }
+
+    function del_mtr(obj, wo_mtrl_no, mtr_item_no) {
+        var temp_mtr_list = [];
+        $(obj).closest("tr").remove();
+
+        for(var j=0;j<mtr_list.length;j++){
+            if(mtr_list[j].mtr_no!=mtr_item_no && mtr_list[j].wo_mtrl_no!=wo_mtrl_no){
+                temp_mtr_list.push(mtr_list[j])
+            }
+        }
+        mtr_list = temp_mtr_list;
+        $("#hid_mtr_info").val(JSON.stringify(mtr_list));
+    }
+
+    var mtr_list = [];
+    function save() {
+        var wo_item_no = $('#id_wo_item_no').val();
+        var mtr_item_no = $('#id_mtr_item_no').val();
+        var mtr_qty = $('#id_mtr_qty').val();
+
+        let obj = {};
+        obj['wo_mtrl_no'] = wo_item_no;
+        obj['mtr_no'] = mtr_item_no;
+        obj['qty'] = mtr_qty;
+
+        var del = "<a class=\"del_btn\" href=\"#\" onclick=\"del_mtr(this,'"+wo_item_no+"','"+ mtr_item_no + "')\"><i class=\"fas fa-times fa-2x text-info\"></i></a>";
+
+        //欄位必填驗證
+        if(wo_item_no.length==0 || mtr_item_no.length==0 || mtr_qty.length==0) {
+            alert("料號項目、料號或數量沒有填寫");
+            return false;
+        }
+
+        //料號驗證，開頭數字1 or 2，10碼
+        if((mtr_item_no.startsWith('1')||mtr_item_no.startsWith('2')) && mtr_item_no.length == 10) {
+
+        } else {
+            alert("料號格式不正確");
+            return false;
+        }
+
+        //若料號已存在就false==================
+        var valid = true;
+        for(var j=0;j<mtr_list.length;j++) {
+            if(mtr_list[j].mtr_no==mtr_item_no && mtr_list[j].wo_mtrl_no==wo_item_no) {
+                valid = false;
+                break;
+            }
+        }
+
+        if(valid) {
+            $('#consumption').append("<tr><td>" + wo_item_no + "</td><td>" + mtr_item_no + "</td><td>" + mtr_qty + "</td><td style='text-align:center'>" + del + "</td></tr>");
+            mtr_list.push(obj);
+            $("#hid_mtr_info").val(JSON.stringify(mtr_list));
+        }else{
+            alert('該料號耗用已經輸入過');
+        }
+        //===================================
+        //按下儲存後，將所有的畫面進行初始化
+        $('#id_mtr_item_no').val('');
+        $('#id_mtr_qty').val('');
+        $('#id_wo_item_no').val('');
+        $('#exampleModal').modal('hide');
+        //===================================
+    }
+    //物料耗用==================================================
+
+</script>
+{% endblock js %}
+{% block content %}
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">物料異動</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-3">
+                      <div id="div_id_wo_item_no" class="form-group">
+                          <label for="id_wo_item_no" class="">料號項目</label>
+                          <div>
+                              <input type="text" name="wo_item_no" class="textinput textInput form-control" id="id_wo_item_no" maxlength="4">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-5">
+                      <div id="div_id_mtr_item_no" class="form-group">
+                          <label for="id_mtr_item_no" class="">料號</label>
+                          <div>
+                              <input type="text" name="mtr_item_no" class="textinput textInput form-control" id="id_mtr_item_no" maxlength="10">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-4">
+                      <div id="div_id_mtr_qty" class="form-group">
+                          <label for="id_mtr_qty" class="">用量</label>
+                          <div>
+                              <input type="text" name="mtr_qty" class="textinput textInput form-control" id="id_mtr_qty">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            <button type="button" class="btn btn-primary" onclick="save()">新增用料</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row pt-3">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <form action="" method="POST" onSubmit="return validation()" id="record_form">
+            {% crispy form %}
+                <input type="hidden" name="hid_std_labor_time" id="hid_std_labor_time">
+                <input type="hidden" name="hid_worked_labor_time" id="hid_worked_labor_time">
+                <input type="hidden" name="hid_worked_good_qty" id="hid_worked_good_qty">
+                <input type="hidden" name="hid_wo_qty" id="hid_wo_qty">
+                <input type="hidden" name="hid_mtr_info" id="hid_mtr_info">
+            </form>
+        </div>
+        <div class="col-1"></div>
+    </div>
+    <div class="row pt-3">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <table id="consumption" class="table table-bordered table-striped table-hover mb-3">
+                <thead class="thead-dark">
+                    <tr>
+                        <td>工單料號項目</td>
+                        <td>料號</td>
+                        <td>用量</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="col-1"></div>
+    </div>
+{% endblock %}

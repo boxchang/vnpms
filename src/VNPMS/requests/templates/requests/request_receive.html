@@ -1,0 +1,30 @@
+{% extends 'bases/menu_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% trans "Receive Request" %}</title>
+{% endblock %}
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url "project_manage" data.project.pk %}">{{ data.project.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "request_detail" data.pk %}">{{ data.title }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Receive Request" %}</li>
+{% endblock %}
+{% block content %}
+<form action="" method="post" class="form-group font-weight-bold align-middle" id="request_form" enctype="multipart/form-data">
+  <div class="card">
+    <div class="card-header">{% trans "Receive Request" %}</div>
+    <div class="card-body">
+    {% csrf_token %}
+    {% crispy form %}
+  </div>
+    <div class="card-footer text-center">
+    <button type="submit" class="btn btn-primary" id="send">{% trans "save" %}</button>
+    <input type=button class="btn btn-primary" value="Cancel" onClick="javascript:history.go(-1);">
+  </div>
+  </div>
+</form>
+{% endblock %}

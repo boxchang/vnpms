@@ -1,0 +1,33 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<fieldset>
+    <div class="row">
+        <div class="col p-3" style="font-size: 1.5em">額外退件通知人</div>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            設定的內容為「收件人的Mail Address;」
+            <form action="" method="post" class="form-group font-weight-bold align-middle" id="setting_form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        <input type="text" name="reject_mail" class="textinput textInput form-control" id="id_reject_mail" value="{{ reject_mail }}">
+                    </div>
+                    <div class="col">
+                        <input class="btn btn-success" type="submit" value="儲存" />
+                    </div>
+                </div>
+            </form>
+        </li>
+    </ul>
+</fieldset>
+{% endblock %}
+{% block js %}
+<script>
+    {% if result == "DONE" %}
+    alert("設定完成");
+    {% endif %}
+</script>
+{% endblock js %}

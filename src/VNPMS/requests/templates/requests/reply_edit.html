@@ -1,0 +1,45 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% load i18n %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}
+        <form action="/requests/reply_edit/{{ reply.pk }}/" method="post" class="form-group font-weight-bold align-middle" id="request_form" enctype="multipart/form-data">
+        <div class="card">
+            <div class="card-header pb-1 pt-1">
+                <div class="row">
+                    <div class="col-sm-11 align-self-center">
+                        COMMENT
+                    </div>
+                    <div class="ml-md-auto">
+                        <button type="submit" class="btn btn-warning btn-sm" id="send">{% trans "Save" %}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+        </form>
+        {% endif %}
+{% endblock %}
+
+{% block js %}
+
+{% endblock js %}
+
+{% block css %}
+<style>
+.django-ckeditor-widget {
+    width: 100%;
+}
+</style>
+{% endblock %}

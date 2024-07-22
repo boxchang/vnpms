@@ -1,0 +1,49 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+{% block title %}
+    {% trans "test form" %}
+{% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+<li class="breadcrumb-item"><a href="{% url 'project_manage' pk=o_rtest.request.project.pk %}">{{ o_rtest.request.project.name }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'request_detail' pk=o_rtest.request.pk %}">{{ o_rtest.request.title }}</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% trans "test form" %}</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-1"></div>
+  <div class="col-10">
+      <div class="card">
+          <div class="card-header">
+            {% trans "test form" %}
+          </div>
+          <div class="card-body">
+              <form method="POST" class="models">
+                  {% csrf_token %}
+                  需求單:<a href="/requests/{{ o_rtest.request.request_no }}" target="_blank">{{ o_rtest.request.request_no }}</a><br />
+                  說明:{{ o_rtest.desc|safe }}
+                  {{ formset.management_form }}
+                  {% for form in formset %}
+                    {% crispy form %}
+                  {% endfor %}
+                  <div class="text-center">
+                      <button type="submit" class="btn btn-primary" id="send">Save</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+  <div class="col-1"></div>
+</div>
+{% endblock content %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock js %}
+
+{% block css %}
+    {{ block.super}}
+{% endblock %}

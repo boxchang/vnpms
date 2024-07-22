@@ -1,0 +1,67 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% block title %} {% trans "project_manage" %} {% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+    <li class="breadcrumb-item active" aria-current="page">{{ project_form.name }}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-success m-1" href="{% url "problem_create" %}?p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "problem_create" %}</a>
+            <a class="btn btn-success m-1" href="{% url "problem_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>問題紀錄</a>
+            <a class="btn btn-success m-1" href="{% url "problem_chart" %}?p={{ project_form.id }}" role="button"><i class="fas fa-chart-bar"></i>問題分析</a>
+        </div>
+        <div class="col" style="text-align: right">
+            <a class="btn btn-success m-1" href="{% url "request_page" pk %}" role="button">REQUEST</a>
+            <a class="btn btn-success m-1" href="{% url "problem_page" pk %}" role="button">PROBLEM</a>
+        </div>
+    </div>
+    <table class="table" id="problem_table" data-pagination="true" data-side-pagination="client"></table>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+<script>
+$(function(){
+    //PROBLEM
+    function urlPFormatter(value, row, index) {
+        return "<a href='/problems/detail/"+row.id+"'>"+value+"</a>";
+    }
+
+    var problem_data_column = [{
+            field: 'problem_no', title: '{% trans "problem_no" %}', width: '10%', formatter: urlPFormatter
+        }, {
+            field: 'title', title: '{% trans "title" %}', width: '35%'
+        }, {
+            field: 'reply_num', title: '{% trans "reply_num" %}', width: '5%', align: 'center'
+        }, {
+            field: 'create_by.username', title: '{% trans "create_by" %}', width: '10%', align: 'center'
+        }, {
+            field: 'create_at', title: '{% trans "create_at" %}', width: '15%', align: 'center'
+        }, {
+            field: 'update_by.username', title: '{% trans "update_by" %}', width: '10%', align: 'center'
+        }, {
+            field: 'update_at', title: '{% trans "update_at" %}', width: '15%', align: 'center'
+        }, {
+            field: 'pk', title: '鍵值', visible:false
+        }]
+
+
+createSimpleTable("#problem_table",problem_data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/problems");
+
+
+
+
+});
+
+
+</script>
+{% endblock %}

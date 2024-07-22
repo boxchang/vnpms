@@ -1,0 +1,53 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+Production
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'prod_record' %}" class="btn btn-info">{% trans 'Record Add' %}</a>
+            <a href="{% url 'prod_record_detail' %}" class="btn btn-info">{% trans 'Record Search' %}</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'prod_wo_detail' %}" class="btn btn-info">工單查詢</a>
+                <a href="{% url 'prod_item_search' %}" class="btn btn-info">料號查詢</a>
+                {% if perms.users.perm_workhour %}
+                <a href="{% url 'prod_record_manage' %}" class="btn btn-info">管理報表</a>
+                <a href="{% url 'prod_import' %}" class="btn btn-info">工單匯入</a>
+                <a href="{% url 'prod_sap_export' %}" class="btn btn-info">SAP對接</a>
+                <a href="{% url 'record_export' %}" class="btn btn-info">報工下載</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="pr-3">
+        {% include 'bases/lang.html' %}
+        </div>
+        {% if user.is_authenticated %}
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block content %}
+{% endblock content %}
+{% endblock %}
+{% block base_js %}
+<script>
+var error_msg = "{{ error_msg }}";
+if(error_msg.length>0) {
+    alert(error_msg);
+}
+</script>
+{% endblock base_js %}

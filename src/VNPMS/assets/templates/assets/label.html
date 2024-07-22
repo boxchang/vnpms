@@ -1,0 +1,119 @@
+{% extends 'bases/base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        if("{{ print_result }}"=="0") {
+            alert("標籤列印成功，請至資訊室領取標籤");
+        }else if("{{ print_result }}"=="1") {
+            alert("標籤列印失敗，請連絡管理人員");
+        }
+
+        $(document).ready(function() {
+            $("#label_form3").submit(function(e) {
+                if($("#asset_number").val().length == 0)
+                {
+                    if($("#send").text()=="Preview")
+                    {
+                        e.preventDefault();
+                        var formData = new FormData(this);
+                        $.ajax({
+                            type: "POST",
+                            url: "{% url 'label_preview' %}",
+                            data: formData,
+                            success: function(data) {
+                                $("#preview").html(data);
+                                $("#send").text("Print");
+                                console.log(data)
+                            },
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        })
+                    }
+                    else {
+                        $("#preview").html("");
+                    }
+                }
+
+            });
+        });
+
+    </script>
+{% endblock %}
+{% block title %}
+AMS - Label
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'assets_main' %}" class="btn btn-warning"><i class="fas fa-home fa-1x"></i></a>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card-body">
+    <div class="row">
+        <div class="col">
+            <div>單張資產標籤列印</div>
+            <div class="input-group mb-3">
+                    <form action="" method="post" class="form-group font-weight-bold align-middle" id="label_form1" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input name="label_type" id="label_type" type="hidden" value="single_asset_label">
+                        <input name="asset_number" id="asset_number" type="text" class="form-control" placeholder="Asset Number" aria-label="Asset Number" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Print</button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+        <div class="col">
+            <div>單張非資產標籤列印</div>
+            <div class="input-group mb-3">
+                <form action="" method="post" class="form-group font-weight-bold align-middle" id="label_form2" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input name="label_type" id="label_type" type="hidden" value="single_nonasset_label">
+                    <input name="non_asset" id="asset_number" type="text" class="form-control" placeholder="Asset Number" aria-label="Asset Number" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Print</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>多張資產標籤列印</div>
+    <div class="row">
+        <div id="div_id_files" class="form-group col-2">
+            <form action="" method="post" class="form-group font-weight-bold align-middle" id="label_form3" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input name="label_type" id="label_type" type="hidden" value="multi_asset_label">
+                <input name="files1" accept=".xls,.xlsx" class="clearablefileinput" id="id_files" type="file">
+                <button type="submit" class="btn btn-primary" id="send">Preview</button>
+            </form>
+        </div>
+        <div id="div_id_sample" class="form-group col-10">
+            Sample<br />
+            <img src="{% static "label/sample.png" %}" />
+        </div>
+    </div>
+    <div class="row" id="preview">
+        {{ preview | safe }}
+    </div>
+</div>
+<div class="card-footer text-center">
+    <input type=button class="btn btn-primary" value="Cancel" onClick="javascript:history.go(-1);">
+</div>
+</form>
+{% endblock %}

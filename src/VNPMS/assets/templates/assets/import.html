@@ -1,0 +1,85 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+AMS - Import Excel Data
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $("#import_form").submit(function(e) {
+            if($("#send").text()=="Preview")
+            {
+                $("body").loading();
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'import_assets_preview' %}",
+                    data: formData,
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                    },
+                    success: function(data) {
+                        $("#preview").html(data);
+                        $("#send").text("Save");
+                        $("body").loading("stop");
+                        console.log(data)
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
+            }
+            else {
+                $("#preview").html("");
+            }
+        });
+    });
+
+</script>
+{% endblock js %}
+{% block container %}
+<div class="card-header">
+    {% if user.is_authenticated %}
+    <div class="row">
+        <div class="col-8">
+            <a href="javascript:history.back()" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>&nbsp;
+        </div>
+        <div class="col-2">
+            {% if user.is_superuser %}
+            <a href="{% url 'category_reset' %}" class="btn btn-outline">類別重置</a>
+            {% endif %}
+        </div>
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<form action="" method="post" class="form-group font-weight-bold align-middle" id="import_form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card-body">
+        <div>請選擇Template檔案(*.xlsx)
+            <a href="{% static "asset/import_template2.xlsx" %}" target="_blank">下載範本檔</a>
+        </div>
+        <div class="row">
+            <div id="div_id_files" class="form-group">
+                <input name="files1" accept=".xls,.xlsx" class="clearablefileinput" id="id_files" type="file">
+                <button type="submit" class="btn btn-primary" id="send">Preview</button>
+            </div>
+        </div>
+        <div class="row" id="preview">
+            {{ preview | safe }}
+        </div>
+    </div>
+</form>
+{% endblock %}

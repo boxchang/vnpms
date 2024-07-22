@@ -1,0 +1,125 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% block title %} {% trans "project_manage" %} {% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+    <li class="breadcrumb-item active" aria-current="page">{{ project_form.name }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="tab-content" id="nav-tabContent" style="padding:0 1rem">
+    <div class="tab-pane fade show active" id="project1-contact" role="tabpanel" aria-labelledby="project1">
+        <nav class="navbar navbar-expand-lg">
+            <div class="nav nav-tabs mr-auto" role="tablist">
+
+                <a class="nav-item nav-link active" id="project1-require" data-toggle="tab"
+                    href="#project1-require-index" role="tab" aria-controls="nav-home"
+                    aria-selected="true">{% trans "request" %}</a>
+                <a class="nav-item nav-link" id="project1-question" data-toggle="tab"
+                    href="#project1-question-index" role="tab" aria-controls="nav-contact"
+                    aria-selected="false">{% trans "problem" %}</a>
+
+            </div>
+            <a class="btn btn-success m-1" href="{% url "request_create" %}?t={{ form_type.tid }}&p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "request_create" %}</a>
+            <a class="btn btn-success m-1" href="{% url "request_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>需求紀錄</a>-
+            <a class="btn btn-success m-1" href="{% url "problem_create" %}?p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "problem_create" %}</a>
+        </nav>
+        <div class="tab-content" id="nav-tabContent2">
+            <div class="tab-pane fade show active" id="project1-require-index" role="tabpanel"
+                    aria-labelledby="project1-require">
+                <table class="table" id="request_table" data-pagination="true" data-side-pagination="client">
+
+                </table>
+            </div>
+            <div class="tab-pane fade" id="project1-question-index" role="tabpanel"
+                    aria-labelledby="project1-question">
+                <table class="table" id="problem_table" data-pagination="true" data-side-pagination="client">
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div class="tab-pane fade" id="project2-contact" role="tabpanel"
+            aria-labelledby="project2">...</div>
+    <div class="tab-pane fade" id="project3-contact" role="tabpanel"
+            aria-labelledby="project3">...</div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+<script>
+$(function(){
+    //REQUEST
+    function urlRFormatter(value, row, index) {
+        {% if user.is_authenticated %}
+            return "<a href='/requests/detail/"+row.id+"'>"+value+"</a>";
+        {% else %}
+            return "<a href='/requests/"+value+"'>"+value+"</a>";
+        {% endif %}
+    }
+
+    var data_column = [{
+            field: 'request_no', title: '{% trans "request_no" %}', sortable:true, width: '10%', halign:'center', formatter: urlRFormatter
+        }, {
+            field: 'title', title: '{% trans "title" %}', sortable:true, width: '30%'
+        }, {
+            field: 'level.level_cn', title: '{% trans "level" %}', sortable:true, width: '10%', align:'center', halign:'center',
+        }, {
+            field: 'status.status_cn', title: '{% trans "status" %}', sortable:true, width: '10%', align:'center', halign:'center',
+        }, {
+            field: 'owner.username', title: '{% trans "owner" %}', sortable:true, width: '10%', align:'center', halign:'center',
+        }, {
+            field: 'start_date', title:'{% trans "Start" %}', titleTooltip: '{% trans "starttime" %}', sortable:true, width: '9%', align:'center', halign:'center',
+        }, {
+            field: 'due_date', title:'{% trans "Finish" %}', titleTooltip: '{% trans "finishtime" %}', sortable:true, width: '9%', align:'center', halign:'center',
+        }, {
+            field: 'process_rate', title:'{% trans "Rate" %}', titleTooltip: '{% trans "rate" %}', sortable:true, width: '5%', align:'right'
+        }, {
+            field: 'sub_request', title:'{% trans "Sub" %}', titleTooltip: '{% trans "subrequire" %}', sortable:true, width: '5%', align:'center'
+        }, {
+            field: 'id', title: '鍵值', visible:false
+        }]
+
+createBootstrapTable("#request_table",data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/requests", "/api/requests/")
+
+
+    //PROBLEM
+    function urlPFormatter(value, row, index) {
+        return "<a href='/problems/detail/"+row.id+"'>"+value+"</a>";
+    }
+
+    var problem_data_column = [{
+            field: 'problem_no', title: '{% trans "problem_no" %}', width: '10%', formatter: urlPFormatter
+        }, {
+            field: 'title', title: '{% trans "title" %}', width: '35%'
+        }, {
+            field: 'reply_num', title: '{% trans "reply_num" %}', width: '5%', align: 'center'
+        }, {
+            field: 'create_by.username', title: '{% trans "create_by" %}', width: '10%', align: 'center'
+        }, {
+            field: 'create_at', title: '{% trans "create_at" %}', width: '15%', align: 'center'
+        }, {
+            field: 'update_by.username', title: '{% trans "update_by" %}', width: '10%', align: 'center'
+        }, {
+            field: 'update_at', title: '{% trans "update_at" %}', width: '15%', align: 'center'
+        }, {
+            field: 'pk', title: '鍵值', visible:false
+        }]
+
+
+createSimpleTable("#problem_table",problem_data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/problems");
+
+
+});
+
+
+</script>
+{% endblock %}

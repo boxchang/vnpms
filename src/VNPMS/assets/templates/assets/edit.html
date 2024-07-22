@@ -1,0 +1,188 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+AMS - Asset Edit
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block js %}
+<script>
+    changeSelect = function(category_id, asset_type, asset_brand)
+    {
+        $.get('/assets/typeapi/'+category_id, function (data){
+            $.each(data, function(index, item){
+                asset_type.append('<option value="' + item.id + '">' + item.type_name + '</option>')
+            })
+        })
+
+        $.get('/assets/brandapi/'+category_id, function (data){
+            $.each(data, function(index, item){
+                asset_brand.append('<option value="' + item.id + '">' + item.brand_name + '</option>')
+            })
+        })
+    }
+
+    $(function (){
+        category = $('#id_category');
+        asset_type = $('#id_type');
+        asset_brand = $('#id_brand');
+        auto_encode = $('#id_auto_encode')
+        label_no = $('#id_label_no')
+
+        changeSelect(0, asset_type, asset_brand);
+
+        category.change(function(){
+            asset_type.empty().append('<option value="">---------</option>');
+            asset_brand.empty().append('<option value="">---------</option>');
+            changeSelect(this.value, asset_type, asset_brand)
+        })
+
+        auto_encode.change(function(){
+            if(auto_encode[0].checked) {
+                label_no.prop('readonly', true);
+            } else {
+                label_no.prop('readonly', false);
+            }
+        })
+
+        if("{{ mode }}" == "UPDATE") {
+            auto_encode.attr("disabled", true);
+            label_no.prop('readonly', false);
+        }
+
+        $("#edit_form").submit(function() {
+            //唯讀狀態後端無法取值，送出時去掉唯讀
+            asset_brand.attr("disabled", false);
+            auto_encode.attr("disabled", false);
+            label_no.prop('readonly', false);
+        })
+
+    })
+</script>
+{% endblock js %}
+{% block container %}
+<div class="card-header">
+    {% if user.is_authenticated %}
+    <div class="row">
+        <div class="col">
+            {% if asset.pk %}
+                <a href="{% url 'assets_detail' asset.pk %}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>&nbsp;
+            {% else %}
+                <a href="javascript:history.back()" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>&nbsp;
+            {% endif %}
+        </div>
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+        <form id="edit_form" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                {% crispy form %}
+                <fieldset>
+                    <legend>Attachment</legend>
+                    <div class="row">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width:10%">
+                                        #
+                                    </th>
+                                    <th style="width:70%">
+                                        {% trans "desc" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "attachment" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "Delete" %}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for pic in pics %}
+                                <tr>
+                                    <td>
+                                        圖片{{ forloop.counter }}
+                                    </td>
+                                    <td>
+                                        {{ pic.description }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ pic.files.url }}" target="_blank"><i class="fas fa-file-download fa-2x text-info"></i></a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'asset_pic_delete' pic.pk %}?q={{ pk }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times fa-2x text-info"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% for doc in docs %}
+                                <tr>
+                                    <td>
+                                        附件{{ forloop.counter }}
+                                    </td>
+                                    <td>
+                                        {{ doc.description }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ doc.files.url }}" target="_blank"><i class="fas fa-file-download fa-2x text-info"></i></a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'asset_doc_delete' doc.pk %}?q={{ pk }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times fa-2x text-info"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div id="div_id_files" class="form-group col-2">
+                            <label for="id_files" class="form-control-label">物品圖片</label>
+                            <input name="pic1" accept="image/*" class="clearablefileinput" id="id_pic1" type="file">
+                        </div>
+                        <div id="div_id_description" class="form-group col-10">
+                            <label for="id_description" class="form-control-label ">{% trans "desc" %}：</label>
+                            <input name="pic_desc1" maxlength="50" class="textinput textInput form-control" id="id_pic_desc1" type="text">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="div_id_files" class="form-group col-2">
+                            <label for="id_files" class="form-control-label">相關附件</label>
+                            <input name="doc1" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint,
+                            text/plain, application/pdf, image/*" class="clearablefileinput" id="id_doc1" type="file">
+                        </div>
+                        <div id="div_id_description" class="form-group col-10">
+                            <label for="id_description" class="form-control-label ">{% trans "desc" %}：</label>
+                            <input name="doc_desc1" maxlength="50" class="textinput textInput form-control" id="id_doc_desc1" type="text">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="pb-4" style="text-align: center;">
+                <input class="btn btn-success" type="submit" value="儲存" />
+            </div>
+        </form>
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <b>{{ field }}</b>: {{ error }}
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-1"></div>
+</div>
+
+{% endblock %}

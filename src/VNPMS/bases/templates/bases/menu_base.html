@@ -1,0 +1,57 @@
+{# default/menu_base.html #}
+
+{% extends "bases/base.html" %} {% load static %}
+{% load settings_tags %}
+{% load i18n %}
+{% block title %} {{ block.super}} {% endblock title %}
+
+{% block css %}
+{{ block.super}}
+{% endblock css %}
+
+{% block container %}
+    <form method="post" action="{% url 'search' %}">
+    {% csrf_token %}
+    <nav class="navbar navbar-default navbar-expand-lg navbar-static-top navbar-dark bg-dark" role="navigation">
+        {% if request.user %}
+            <a class="navbar-brand" href="{% url 'pms_home' %}"><span style="font-family: Arial Black">PMS</span></a>
+        {% endif %}
+        <small class="text-light">
+
+        </small>
+        <div class="collapse navbar-collapse justify-content-end">
+                <input class="form-control col-2" type="text" placeholder="keyword" name="keywords">&nbsp;
+                <button type="submit" class="btn btn-warning">Search</button>
+            <div class="ml-4 mr-4">
+                <a class="text-warning" href="{% url 'project_setting' %}"><i class="fas fa-cog fa-2x"></i></a>
+            </div>
+            <div>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+                {% else %}
+                    <a class="btn btn-info" href="#">{% trans "login" %}</a>
+                {% endif %}
+            </div>
+        </div>
+
+    </nav>
+    </form>
+    <div class="container-fluid bg-light" style="height: inherit;">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb" style="padding:0px 20px">
+                {% block breadcrumb %}
+                    <li class="breadcrumb-item"><a href="{% url 'pms_home' %}">Home</a></li>
+                {% endblock %}
+
+            </ol>
+        </nav>
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+{% endblock container %}
+
+{% block js %}
+
+{% endblock js %}

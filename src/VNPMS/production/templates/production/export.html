@@ -1,0 +1,112 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+
+{% endblock ready %}
+{% block css %}
+
+{% endblock css %}
+{% block js %}
+<script>
+
+</script>
+{% endblock js %}
+{% block content %}
+<div class="pt-3">
+    <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">匯出資料</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="upload-record-tab" data-toggle="pill" href="#upload-record" role="tab" aria-controls="upload-record" aria-selected="false">匯出紀錄</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
+            <div style="background-color: #EEEEEE;border-radius: .3rem;padding: 1rem 1rem;">
+                <h1 class="display-5">匯入SAP說明</h1>
+                <p class="lead">※SAP會判斷檔名第一個底線後為匯入廠別</p>
+                <p class="lead">※上傳SAP的檔案名稱不能重覆，故程式會自動在檔名日期後面加V版號</p>
+            </div>
+            <div class="row pt-3">
+                <div class="col-6">
+                    <fieldset class="form-group">
+                        <legend class="pl-3">報工資料</legend>
+                        <div class="control-group pl-3">
+                            <form action="{% url 'prod_sap_export' %}" method="POST" id="workhour_export">
+                                {% csrf_token %}
+                                {% crispy form %}
+                                <input type="hidden" name="action" id="action" value="workhour">
+                            </form>
+                        </div>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <legend class="pl-3">用料資料</legend>
+                        <div class="control-group pl-3">
+                            <form action="{% url 'prod_sap_export' %}" method="POST" id="consumption_export">
+                                {% csrf_token %}
+                                {% crispy form %}
+                                <input type="hidden" name="action" id="action" value="consumption">
+                            </form>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-4">
+                    <table id="not_upload_table" class="table table-bordered table-striped table-hover mb-3">
+                        <tr>
+                            <th width="40%" style="text-align: center">廠別</th>
+                            <th width="30%" style="text-align: center">報工筆數</th>
+                            <th width="30%" style="text-align: center">用料筆數</th>
+                        </tr>
+                        {% for x in record_list %}
+                        <tr>
+                            <td style="text-align: center">{{ x.plant }}</td>
+                            <td style="text-align: right">{{ x.record_count }}</td>
+                            <td style="text-align: right">{{ x.material_count }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                <a href="{% url 'prod_sap_export' %}" class="btn btn-info">重新整理</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div class="tab-pane fade" id="upload-record" role="tabpanel" aria-labelledby="upload-record-tab">
+            <div class="p-3">
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th width="20%">匯出時間</th>
+                        <th width="20%">匯出者</th>
+                        <th width="30%">檔案名稱</th>
+                        <th width="20%">下載</th>
+                    </tr>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.create_at }}</td>
+                        <td>{{ log.create_by }}</td>
+                        <td>{{ log.file_name }}</td>
+                        <td><a href="/media/sync_sap_excel/{{ log.file_name }}" class="btn btn-light">下載</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

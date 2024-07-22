@@ -1,0 +1,101 @@
+{% extends 'borrow/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}
+    資訊借物申請單
+{% endblock %}
+{% block sub_container %}
+<div class="row">
+    <div class="col">
+        <table class="table" id="borrow_table" data-pagination="true" data-side-pagination="client"></table>
+    </div>
+</div>
+{% endblock sub_container %}
+
+{% block js %}
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script>
+$(function() {
+    function form_no_format(value, row, index) {
+        var form_no = (Array(6).join('0') + value).slice(-6);
+        return "<a href='/borrow/detail/"+row.form_no+"'>"+form_no+"</a>";
+    }
+
+
+    var borrow_column = [
+            {field: 'form_no', title: '單號', sortable:true, width: '5%', halign:'center', formatter: form_no_format},
+            {field: 'app_dept', title: '申請部門', sortable:true, width: '10%'},
+            {field: 'app_user', title: '申請人', sortable:true, width: '10%'},
+            {field: 'comment', title: '說明', sortable:true, width: '15%'},
+            {field: 'apply_date', title: '申請日期', sortable:true, width: '10%', align:'center', halign:'center'},
+            {field: 'expect_date', title: '預計歸還日期', sortable:true, width: '10%', align:'center', halign:'center'},
+            {field: 'lend_owner.username', title: '交付', sortable:true, width: '10%', align:'center', halign:'center'},
+            {field: 'lend_date', title:'交付日期', sortable:true, width: '9%', align:'center', halign:'center'},
+            {field: 'return_owner.username', title:'歸還', sortable:true, width: '9%', align:'center', halign:'center'},
+            {field: 'return_date', title:'歸還日期', sortable:true, width: '5%', align:'right'},
+            {field: 'id', title: '鍵值', visible:false}
+        ]
+
+    var item_column = [
+            {field: 'asset_no', title: '標籤編號', sortable:true, width: '150px', halign:'center', align:'center'},
+            {field: 'type_name', title: '資產類別', sortable:true, width: '100px', halign:'center', align:'center'},
+            {field: 'model', title: '物品', sortable:true},
+            {field: 'desc', title: '備註', sortable:true}
+        ]
+
+    var createBootstrapTable = function (){
+        $("#borrow_table").bootstrapTable({
+            uniqueId: "ID",
+            toolbar: '#toolbar',                //工具按钮用哪个容器
+            pageSize:50,                       //每页的记录行数（*）
+            url: "/api/borrow",
+            detailView: true,
+            detailFilter:function(index,row){
+                if(row.nested=='0'){
+                    return false;
+                }else{
+                    return true;
+                }
+            },
+            columns: borrow_column,
+            onExpandRow: function (index, row, $detail) {
+                buildChildTable($detail,row);
+            },
+            onLoadSuccess: function(res) {
+                if(res==''){
+                    $(target_div).parent().parent().parent().html("<div class='m-3'>目前沒有任何資料!</div>");
+                }
+            }
+        });
+
+        var buildChildTable = function ($detail,row) {
+            $detail.html("<table class='table table-bordered table-hover'></table>").find('table').bootstrapTable({
+                url: "/borrow/"+row.form_no+"/item/",
+                method:"get",
+                queryParams:{},
+                ajaxOptions:{},
+                detailView: false,
+                showHeader: true,
+                columns: item_column,
+                onExpandRow: function (index, row, $detail) {
+                    buildChildTable($detail,row);
+                },
+                onLoadSuccess: function(res) {
+                    if(res==''){
+                        this.parent().html("<div class='m-3'>目前沒有任何資料!</div>");
+                    }
+                }
+            });
+        };
+    };
+
+    createBootstrapTable()
+});
+</script>
+{% endblock js %}
+{% block css %}
+
+{% endblock css %}

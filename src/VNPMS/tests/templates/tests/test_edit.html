@@ -1,0 +1,120 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+{% block title %}
+    {% if form.instance.id %}
+        {% trans "test_edit" %}
+    {% else %}
+        {% trans "test_create" %}
+    {% endif %}
+{% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+    {% if form.instance.id %}
+    <li class="breadcrumb-item"><a href="{% url 'project_manage' pk=o_request.project.pk %}">{{ o_request.project.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.title }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "test_edit" %}</li>
+    {% else %}
+    <li class="breadcrumb-item"><a href="{% url 'project_manage' pk=o_request.project.pk %}">{{ o_request.project.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.title }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "test_create" %}</li>
+    {% endif %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-1"></div>
+  <div class="col-10">
+      <div class="card">
+          <div class="card-header">
+          {% if form.instance.id %}
+            {% trans "test_edit" %}
+          {% else %}
+            {% trans "test_create" %}
+          {% endif %}
+          </div>
+          <div class="card-body">
+          <form method="POST" class="models">
+            {% csrf_token %}
+            {% crispy form %}
+            {{ ritem_formset.management_form }}
+            {% for form in ritem_formset %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                <div class="models-item">
+                    {% crispy form ritem_formset.helper %}
+                </div>
+            {% endfor %}
+            <button href="#" id="btn-models-add" class="item-add btn btn-primary">
+                            <i class="fas fa-plus"></i> Add TEST ITEM</button>
+            <div class="w-100 pt-3">
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary" id="send">Save</button>
+                <input type=button class="btn btn-primary" value="Cancel" onClick="javascript:history.go(-1);">
+            </div>
+          </form>
+          {% if errors %}
+              <div class="text-danger">
+            {{ errors }}
+              </div>
+          {% endif %}
+          </div>
+      </div>
+  </div>
+  <div class="col-1"></div>
+</div>
+{% endblock content %}
+
+{% block js %}
+    {{ block.super }}
+<script>
+$(function() {
+    $('#btn-models-add').click(function (e) {
+            e.preventDefault();
+
+            var lastElement = $('.models-item:last');
+            var totalForms = $('.models #id_item_test-TOTAL_FORMS');
+            var total = parseInt(totalForms.val());
+
+            var newElement = lastElement.clone(true);
+
+            newElement.find(':input').each(
+                function () {
+                    var name = $(this).attr('name').replace(
+                        '-' + (total - 1) + '-',
+                        '-' + total + '-'
+                    );
+                    console.log(name);
+                    $(this).attr({ 'name': name }).val('').removeAttr('checked');
+                }
+            );
+            newElement.find('*').each(
+                function () {
+                    var id = $(this).attr('id');
+                    if (id) {
+                        $(this).attr('id', id.replace(
+                            '-' + (total - 1) + '-',
+                            '-' + total + '-'
+                        ));
+                    };
+                }
+            );
+            totalForms.val(total + 1);
+            newElement.insertAfter(lastElement);
+        });
+});
+
+</script>
+{% endblock js %}
+
+{% block css %}
+
+<style>
+{{ block.super}}
+.django-ckeditor-widget {
+width: 100%;
+}
+</style>
+{% endblock %}

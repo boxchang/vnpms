@@ -1,0 +1,112 @@
+{% extends 'stock/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block title %}
+庫存查詢
+{% endblock %}
+{% block css%}
+
+{% endblock css %}
+{% block js %}
+<script>
+$(function (){
+    storage_obj = $("#id_storage")
+    location_obj = $("#id_location");
+    bin_obj = $("#id_bin");
+    changeStorageSelect = function(storage_code, obj)
+    {
+        $.get('/stock/location_api/'+storage_code, function (data){
+            $.each(data, function(index, item){
+                obj.append('<option value="' + item.location_code + '">' + item.location_name + '</option>')
+            })
+        })
+    }
+
+    changeLocationSelect = function(location_code, obj)
+    {
+        $.get('/stock/location_bin_api/'+location_code, function (data){
+            $.each(data, function(index, item){
+                obj.append('<option value="' + item.bin_code + '">' + item.bin_name + '</option>')
+            })
+        })
+    }
+
+    storage_obj.change(function() {
+        location_obj.empty().append("<option value=''>---------</option>");
+        changeStorageSelect(this.value, location_obj)
+    })
+
+    location_obj.change(function() {
+        bin_obj.empty().append("<option value=''>---------</option>");
+        changeLocationSelect(this.value, bin_obj)
+    })
+
+})
+
+function history(keyword) {
+    $("#keyword").val(keyword);
+    $("#history_form").submit();
+}
+
+function export_excel() {
+    {% if page_results %}
+    $('#form').attr('action', '{% url 'stock_search_excel' %}');
+    $('#form').submit();
+    $("body").loading('stop');
+    {% else %}
+    alert("無查詢結果");
+    {% endif %}
+}
+
+</script>
+{% endblock js %}
+{% block ready %}
+
+{% endblock ready %}
+{% block content %}
+<div class="p-3">
+    <form id="history_form" action="{% url 'stock_history' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="keyword" id="keyword">
+    </form>
+    <form action="{% url 'stock_search_action' %}" method="post" class="form-group font-weight-bold align-middle" id="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+    {% if page_results %}
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th style="text-align: center">Storage</th>
+                <th style="text-align: center">Location</th>
+                <th style="text-align: center">儲格</th>
+                <th style="text-align: center">料號</th>
+                <th>物料說明</th>
+                <th style="text-align: center">庫存數量</th>
+                <th style="text-align: center">單位</th>
+                <th style="text-align: center">異動日期</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in page_results %}
+                <tr>
+                    <td style="text-align: center">{{ stock.bin.location.storage.storage_code }}</td>
+                    <td style="text-align: center">{{ stock.bin.location.location_name }}</td>
+                    <td style="text-align: center">{{ stock.bin.bin_name }}</td>
+                    <td style="text-align: center">{{ stock.item.item_code }}</td>
+                    <td>{{ stock.item.spec }}</td>
+                    <td style="text-align: right">{{ stock.qty }}</td>
+                    <td style="text-align: center">{{ stock.item.unit }}</td>
+                    <td style="text-align: center">{{ stock.update_at|date:"Y/m/d" }}</td>
+                    <td style="text-align: center"><input type="button" onclick="history('{{ stock.item.item_code }}')" value="異動紀錄"></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include "bases/paginating.html" %}
+    <span>總筆數：{{ row_count }}</span>
+    {% endif %}
+</div>
+{% endblock %}

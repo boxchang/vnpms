@@ -1,0 +1,286 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div class="card" style="background:#CCC">
+    <div class="card-header">
+
+        <div class="row">
+        {% if data.belong_to and user.is_authenticated %}
+            <a href="/requests/detail/{{ data.belong_to.id }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+        {% elif data.belong_to %}
+            <a href="/requests/{{ data.belong_to.request_no }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+        {% endif %}
+            <div class="ml-md-auto">
+                {% if user.is_authenticated %}
+                <a class="btn btn-warning btn-sm" href="{% url 'request_edit' pk %}" role="button"><i class="far fa-edit"></i>{% trans "request_edit" %}</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'request_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>{% trans "request_delete" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10">
+            <h1 class="font-weight-bold pl-3 pt-3">
+                {{ data.title }}&nbsp&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ data.request_no }}</span></small>&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ data.status }}</span></small>
+                {% if data.is_test %}
+                    {% if not data.test_data %}
+                        <small style="font-size: 50%"><span class="badge badge-warning">Not test yet</span></small>&nbsp
+                    {% endif %}
+                {% endif %}
+                <small style="font-size: 50%">
+                    <a href="#" onclick="function f() {
+                      $('#share_url').show();
+                    }f();"><i class="fas fa-share-alt text-warning"></i></a>
+                </small>
+            </h1>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="col-md-2 text-right align-middle pt-3 pr-5">
+            <div class="row">
+                <div class="col-4">
+                    {% if data.owner %}
+                        <form method="post" action="/requests/change_status" id="status_form">
+                            {% csrf_token %}
+                            {{ status_html | safe }}
+                        </form>
+                    {% else %}
+                        <a class="btn btn-success" href="/requests/receive?r={{ pk }}" role="button">{% trans "Receive Request" %}</a>
+                    {% endif %}
+                </div>
+                {% if data.is_test %}
+                <div class="col-8">
+                    {% if test_no %}
+                        <a class="btn btn-success" href="/tests/edit?r={{ pk }}" role="button">{% trans "Edit Test Form" %}</a>
+                        <a class="btn btn-success" href="/tests/form/{{ test_no }}" role="button" target="_blank">{% trans "Test Form" %}</a>
+                        <a class="btn btn-success" href="/tests/result/{{ pk }}" role="button">{% trans "Test Result" %}</a>
+                        <a class="btn btn-danger" href="/tests/delete?r={{ pk }}" onclick="return confirm('Are you sure?')" role="button">{% trans "Test Delete" %}</a>
+                    {% else %}
+                        <a class="btn btn-success" href="/tests/add?r={{ pk }}" role="button">{% trans "Create Test Form" %}</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="display: none;" class="m-3" id="share_url">{% trans "Share:" %}<span class="border p-3 bg-light">{{ ABSOLUTE_ROOT }}/requests/{{ request_no }}</span></div>
+    <div class="w-100"></div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered table-sm col-8">
+                    <tr>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "project_belong" %}</td>
+                        <td class="text-center align-middle" style="width:15%;">{{ data.project }}</td>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "level" %}</td>
+                        <td class="text-center align-middle" style="width:15%;">{{ data.level }}</td>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "owner" %}</td>
+                        <td class="text-center align-middle" style="width:15%;">{{ data.owner }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark">{% trans "starttime" %}</td>
+                        <td colspan="3" class="text-center align-middle">{{ data.start_date|date:"Y-m-d" }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "rate" %}</td>
+                        <td class="text-center align-middle">{{ data.process_rate }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark">{% trans "finishtime" %}</td>
+                        <td colspan="3" class="text-center align-middle">{{ data.due_date|date:"Y-m-d" }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "estimate_time" %}</td>
+                        <td class="text-center align-middle">{{ data.estimate_time }}</td>
+                    </tr>
+                </table>
+                {% if files %}
+                <div class="row">
+                    <div class="col-md-10">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width:10%">
+                                        #
+                                    </th>
+                                    <th style="width:70%">
+                                        {% trans "desc" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "attachment" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "Delete" %}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for file in files %}
+                                <tr style="background:#FFF;">
+                                    <td>
+                                        {{ forloop.counter }}
+                                    </td>
+                                    <td>
+                                        {{ file.description }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ file.files.url }}"><i class="fas fa-file-download fa-2x text-info"></i></a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'request_file_delete' file.pk %}?q={{ pk }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times fa-2x text-info"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                <table class="table table-bordered table-sm col-10">
+                  <tr>
+                        <td style="padding: 3.7rem;font-size: 1.2em;background:#FFF;">
+                            {{ data.desc|safe }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% for reply in replies %}
+        <table class="table table-bordered table-sm col-10" style="background:#FFF;">
+            <tr>
+                <td align="right">
+                    {{ reply.create_at|date:"Y-m-d H:i" }} {{ reply.create_by }}
+                    {% if reply.create_by == user %}
+                    <a href="{% url "reply_edit" reply.pk %}" role="button"><span style="color:#000;padding-left:5px;"><i class="fa fa-edit fa-3"></i></span></a>
+                    <a href="{% url "request_reply_delete" reply.pk %}" role="button" onclick="return confirm('Are you sure?')"><span style="color:#000;padding-left:5px;"><i class="fa fa-times fa-3"></i></span></a>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3.7rem;font-size: 1.2em;">
+                    {{ reply.desc|safe }}
+                </td>
+            </tr>
+        </table>
+        {% endfor %}
+        {% if user.is_authenticated %}
+        <form action="/requests/reply/{{ pk }}/" method="post" class="form-group font-weight-bold align-middle" id="request_form" enctype="multipart/form-data">
+        <div class="card">
+            <div class="card-header pb-1 pt-1">
+                <div class="row">
+                    <div class="col-sm-11 align-self-center">
+                        COMMENT
+                    </div>
+                    <div class="ml-md-auto">
+                        <button type="submit" class="btn btn-warning btn-sm" id="send">{% trans "New" %}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    {% csrf_token %}
+                    {% crispy reply_form %}
+                </div>
+            </div>
+        </div>
+        </form>
+        {% endif %}
+        <div class="card">
+            <div class="card-header pb-1 pt-1">
+                <div class="row">
+                    <div class="col-sm-11 align-self-center">
+                        {% trans "subrequest" %}
+                    </div>
+                    <div class="ml-md-auto">
+                        {% if user.is_authenticated %}
+                        <a class="btn btn-warning btn-sm" href="{% url 'request_create' %}?p={{ data.project.id }}&t={{ form_type.tid }}&r={{ pk }}" role="button">{% trans "New" %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped" id="request_table">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'highlight\highlight.pack.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'highlight\styles\default.css' %}">
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+<script>
+$(function(){
+    //PROBLEM
+    function urlPFormatter(value, row, index) {
+        return "<a href='/problems/detail/"+row.id+"'>"+value+"</a>";
+    }
+
+    var data_column = [{
+            field: 'problem_no', title: '{% trans "problem_no" %}', sortable:true, formatter: urlPFormatter
+        }, {
+            field: 'title', title: '{% trans "title" %}', sortable:true
+        }, {
+            field: 'reply_num', title: '{% trans "replies" %}', sortable:true
+        }, {
+            field: 'create_by.username', title: '{% trans "create_by" %}', sortable:true
+        }, {
+            field: 'create_at', title: '{% trans "create_at" %}', sortable:true
+        }, {
+            field: 'update_by.username', title: '{% trans "update_by" %}', sortable:true
+        }, {
+            field: 'update_at', title: '{% trans "update_at" %}', sortable:true
+        }, {
+            field: 'pk', title: '鍵值', visible:false
+        }]
+
+    createSimpleTable("#problem_table",data_column,5,"/api/requests/{{ data.pk }}/problems");
+
+    //SUB REQUEST
+    function urlRFormatter(value, row, index) {
+        {% if user.is_authenticated %}
+            return "<a href='/requests/detail/"+row.id+"'>"+value+"</a>";
+        {% else %}
+            return "<a href='/requests/"+value+"'>"+value+"</a>";
+        {% endif %}
+    }
+
+    var data_column = [{
+            field: 'request_no', title: '{% trans "request_no" %}', sortable:true, width: '10%', halign:'center', formatter: urlRFormatter
+        }, {
+            field: 'title', title: '{% trans "title" %}', sortable:true, width: '30%'
+        }, {
+            field: 'level.level_cn', title: '{% trans "level" %}', sortable:true, width: '10%', align:'center', halign:'center',
+        }, {
+            field: 'status.status_cn', title: '{% trans "status" %}', sortable:true, width: '10%', align:'center', halign:'center',
+        }, {
+            field: 'owner.username', title: '{% trans "owner" %}', sortable:true, width: '10%', align:'center', halign:'center',
+        }, {
+            field: 'start_date', title:'{% trans "Start" %}', titleTooltip: '{% trans "starttime" %}', sortable:true, width: '9%', align:'center', halign:'center',
+        }, {
+            field: 'due_date', title:'{% trans "Finish" %}', titleTooltip: '{% trans "finishtime" %}', sortable:true, width: '9%', align:'center', halign:'center',
+        }, {
+            field: 'process_rate', title:'{% trans "Rate" %}', titleTooltip: '{% trans "rate" %}', sortable:true, width: '5%', align:'right'
+        }, {
+            field: 'sub_request', title:'{% trans "Sub" %}', titleTooltip: '{% trans "subrequire" %}', sortable:true, width: '7%', align:'center'
+        }, {
+            field: 'id', title: '鍵值', visible:false
+        }]
+
+createBootstrapTable("#request_table",data_column,5,"/api/requests/{{ pk }}/requests", "/api/requests/");
+
+});
+
+function change_status(status) {
+    $("#status_id").val(status);
+    $("#status_form").submit();
+}
+</script>

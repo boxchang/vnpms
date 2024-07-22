@@ -1,0 +1,92 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="row pt-5">
+    <div class="col-1"></div>
+    <div class="col-10">
+        <form id="edit_form" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                {% crispy form %}
+                <fieldset>
+                    <legend>Attachment</legend>
+                    <div class="row">
+                        <div id="div_id_files" class="form-group col-2">
+                            <label for="id_files" class="form-control-label">物品圖片</label>
+                            <input name="pic1" accept="image/*" class="clearablefileinput" id="id_pic1" type="file">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="pb-4" style="text-align: center;">
+                <input class="btn btn-success" type="submit" value="儲存" />
+            </div>
+        </form>
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <b>{{ field }}</b>: {{ error }}
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-1"></div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+changeFamilySelect = function(family_id)
+{
+    $.get('/inventory/categoryapi/'+family_id, function (data){
+        $.each(data, function(index, item){
+            item_category.append('<option value="' + item.id + '">' + item.category_name + '</option>')
+        })
+    })
+}
+
+changeCategorySelect = function(category_id)
+{
+    $.get('/inventory/typeapi/'+category_id, function (data){
+        $.each(data, function(index, item){
+            item_type.append('<option value="' + item.id + '">' + item.type_name + '</option>')
+        })
+    })
+}
+
+$(function (){
+    item_family = $('#id_item_family');
+    item_category = $('#id_item_category');
+    item_type = $('#id_item_type');
+
+    changeFamilySelect(0, item_family);
+    changeCategorySelect(0, item_category);
+
+    item_family.change(function(){
+        item_category.empty().append('<option value="">---------</option>');
+        item_type.empty().append('<option value="">---------</option>');
+        changeFamilySelect(this.value, item_family);
+    })
+
+    item_category.change(function(){
+        item_type.empty().append('<option value="">---------</option>');
+        changeCategorySelect(this.value, item_family, item_category)
+    })
+
+    if("{{ mode }}" == "UPDATE") {
+        item_family.attr("disabled", true);
+        item_category.attr("disabled", true);
+        item_type.attr("disabled", true);
+    }
+
+    $("#edit_form").submit(function() {
+        //唯讀狀態後端無法取值，送出時去掉唯讀
+        item_family.attr("disabled", false);
+        item_category.attr("disabled", false);
+        item_type.attr("disabled", false);
+    })
+})
+</script>
+{% endblock js %}

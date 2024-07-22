@@ -1,0 +1,121 @@
+{% extends 'bases/menu_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block title %} {% trans "project_manage" %} {% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'problem_page' pk=project.pk %}">{{ project.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">問題分析</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header pb-1 pt-1">
+        <div class="row">
+            查詢條件
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="" method="post" class="form-group font-weight-bold align-middle" id="request_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% crispy form %}
+        </form>
+        <canvas id="paretoChart"></canvas>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+
+
+$(function(){
+    const ctx = document.getElementById('paretoChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {},
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Values'
+                    }
+                },
+                y1: {
+                    beginAtZero: true,
+                    max: 100,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Cumulative Percentage'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+
+    $("#button-id-search").on('click', function() {
+        var _start_date = $("#id_start_date").val();
+        var _status = $("#id_status").val()
+        $.post( "{% url 'problem_chart_api' %}", {'start_date': _start_date, 'status': _status, 'csrfmiddlewaretoken': '{{csrf_token}}'},function( results ) {
+            var data = {
+              labels: results.labels,
+              values: results.values
+            };
+            var total = data.values.reduce((sum, value) => sum + value, 0);
+            let cumulativePercentage = 0;
+            data.percentages = data.values.map(value => {
+                cumulativePercentage += (value / total) * 100;
+                return cumulativePercentage.toFixed(2);
+            });
+            chart.data = {
+                labels: data.labels,
+                datasets: [
+                    {
+                        label: 'Values',
+                        data: data.values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Cumulative Percentage',
+                        type: 'line',
+                        data: data.percentages,
+                        fill: false,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            }
+            chart.update();
+        });
+    });
+
+
+});
+</script>
+{% endblock %}
+
+{% block css %}
+<style type="text/css">
+.search_btn_fix {
+    padding-top: 15px;
+}
+</style>
+{% endblock css %}

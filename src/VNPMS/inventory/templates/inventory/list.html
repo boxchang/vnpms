@@ -1,0 +1,79 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="p-3">
+    <div class="card">
+        <div class="card-header pb-1 pt-1">
+            <div class="row">
+                查詢條件
+            </div>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'inv_list' %}" method="post" class="form-group font-weight-bold align-middle" id="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% crispy form %}
+                <input type="hidden" name="action" id="action">
+            </form>
+        </div>
+    </div>
+    <div id="data" class="table-responsive" style="height:500px; overflow:auto;">
+        <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th width="5%" style="text-align: center">單號</th>
+                <th width="10%" style="text-align: center">申請日期</th>
+                <th width="10%" style="text-align: center">類別</th>
+                <th width="15%" style="text-align: center">申請部門</th>
+                <th width="10%" style="text-align: center">申請人</th>
+                <th width="15%" style="text-align: center">原因</th>
+                <th width="10%" style="text-align: center">狀態</th>
+                <th width="10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if list %}
+            {% for data in list %}
+                <tr>
+                    <td style="text-align: center">{{ data.form_no }}</td>
+                    <td style="text-align: center">{{ data.apply_date }}</td>
+                    <td style="text-align: center">{{ data.category }}</td>
+                    <td style="text-align: center">{{ data.unit }}</td>
+                    <td style="text-align: center">{{ data.requester }}</td>
+                    <td style="text-align: left">{{ data.reason }}</td>
+                    <td style="text-align: center">{{ data.status }}</td>
+                    <td style="text-align: center"><a href="{% url 'inv_detail' data.form_no %}" class="btn btn-warning">請購明細</a></td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="7" align="center">無相關單據</td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+function dept_change() {
+    $.ajax({
+        url: '{% url 'get_deptuser_api' %}', type: 'post',
+        dataType: 'json',
+        data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "unit": $("#id_unit :selected").val()},
+        success: function(data) {
+            $("#id_requester").html(data);
+        }
+    });
+}
+
+var export_excel = function() {
+    $('#action').val('EXPORT');
+    $('#form').submit();
+}
+
+var submit1 = function() {
+    $('#action').val('');
+    $('#form').submit();
+}
+</script>
+{% endblock js %}

@@ -1,0 +1,182 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% load i18n %}
+{% block title %}
+
+    {% trans "bug_index" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'bug_page' pk=bug.project.pk %}">{{ bug.project.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ bug.title }}</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            {% if bug.belong_to.id %}
+                <a href="/requests/detail/{{ bug.belong_to.id }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+            {% else %}
+                <a href="/projects/manage/{{ bug.project.id }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+            {% endif %}
+            <div class="ml-md-auto">
+                <a class="btn btn-warning btn-sm" href="{% url 'bug_edit' pk %}" role="button"><i class="far fa-edit"></i>{% trans "bug_edit" %}</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'bug_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>{% trans "bug_delete" %}</a>
+            </div>
+        </div>
+    </div>
+    <h1 class="font-weight-bold pt-3 pl-3">{{ bug.title }}&nbsp&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ bug.bug_no }}</span></small>&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ bug.status }}</span></small></h1>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "belong_project" %}</td>
+                        <td class="text-center align-middle" colspan="3" style="width:15%;">{{ bug.project }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "owner" %}</td>
+                        <td class="text-center align-middle" style="width:15%;">
+                            <div class="row">
+                                <span class="col-sm-9 align-middle">
+                                    {{ bug.owner }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "create_by" %}</td>
+                        <td class="text-center align-middle" style="width:15%;">{{ bug.create_by }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark">{% trans "create_at" %}</td>
+                        <td class="text-center align-middle">{{ bug.create_at|date:"Y-m-d H:i:s" }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "update_at" %}</td>
+                        <td class="text-center align-middle">{{ bug.update_at|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                </table>
+                {% if files %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-sm col-12">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width:10%">
+                                        #
+                                    </th>
+                                    <th style="width:70%">
+                                        {% trans "desc" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "attachment" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "Delete" %}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for file in files %}
+                                <tr>
+                                    <td>
+                                        {{ forloop.counter }}
+                                    </td>
+                                    <td>
+                                        {{ file.description }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ file.files.url }}"><i class="fas fa-file-download fa-2x text-info"></i></a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'request_file_delete' file.pk %}?q={{ pk }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times fa-2x text-info"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                <table class="table table-bordered table-sm">
+                    <tr>
+                        <td style="padding: 3.7rem;font-size: 1.2em">
+
+                            {{ bug.desc|safe }}
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header pb-1 pt-1">
+                <div class="row">
+                    <div class="col-sm-11 align-self-center">
+                        {% trans "problem" %}
+                    </div>
+                    <div class="ml-md-auto">
+                        <a class="btn btn-warning btn-sm" href="{% url 'problem_create' %}?t={{ form_type.tid }}&p={{ pk }}" role="button">{% trans "problem_create" %}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped" id="problem_table">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'highlight\highlight.pack.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'highlight\styles\default.css' %}">
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+<script>
+$(function(){
+    //BUG
+    function urlBFormatter(value, row, index) {
+        return "<a href='/problems/detail/"+row.id+"'>"+value+"</a>";
+    }
+
+    var data_column = [{
+            field: 'problem_no', title: '{% trans "problem_no" %}', sortable:true, formatter: urlBFormatter
+        }, {
+            field: 'title', title: '{% trans "title" %}', sortable:true
+        }, {
+            field: 'reply_num', title: '{% trans "replies" %}', sortable:true
+        }, {
+            field: 'create_by.username', title: '{% trans "create_by" %}', sortable:true
+        }, {
+            field: 'create_at', title: '{% trans "create_at" %}', sortable:true
+        }, {
+            field: 'update_by.username', title: '{% trans "update_by" %}', sortable:true
+        }, {
+            field: 'update_at', title: '{% trans "update_at" %}', sortable:true
+        }, {
+            field: 'pk', title: '鍵值', visible:false
+        }]
+
+
+createSimpleTable("#problem_table",data_column,5,"/api/bugs/{{ pk }}/problems");
+
+});
+</script>
+{% endblock js %}

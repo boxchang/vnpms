@@ -1,0 +1,18 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% block title %}
+PMS Task Detail 詳細資料
+{% endblock %}
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url "request_page" pk=data.project.pk %}">{{ data.project.name }}</a></li>
+    {% for dad in bread %}
+        <li class="breadcrumb-item"><a href="{% url "request_detail" pk=dad.pk %}">{{ dad.title }}</a></li>
+    {% endfor %}
+    <li class="breadcrumb-item active" aria-current="page">{{ data.title }}</li>
+{% endblock %}
+{% block content %}
+{% include 'requests/request_base.html' %}
+{% endblock %}

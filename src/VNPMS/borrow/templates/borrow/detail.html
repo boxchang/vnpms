@@ -1,0 +1,114 @@
+{% extends 'borrow/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}
+    資訊借物申請單
+{% endblock %}
+{% block sub_container %}
+<fieldset>
+    <legend>借用資訊</legend>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-2 p-2" style="text-align:right;">申請部門：</div>
+                <div class="col-2 p-2 content">{{ borrow.app_dept }}</div>
+                <div class="col-2 p-2" style="text-align:right;">申請人：</div>
+                <div class="col-2 p-2 content">{{ borrow.app_user }}</div>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-2 p-2" style="text-align:right;">申請日期：</div>
+                <div class="col-2 p-2 content">{{ borrow.apply_date|default:"" }}</div>
+                <div class="col-2 p-2" style="text-align:right;">預計歸還日期：</div>
+                <div class="col-2 p-2 content">{{ borrow.expect_date|default:"" }}</div>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-2 p-2" style="text-align:right;">說明：</div>
+                <div class="col-2 p-2 content">{{ borrow.comment }}</div>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-2 p-2" style="text-align:right;">交付：</div>
+                <div class="col-2 p-2 content">{{ borrow.lend_owner|default:"" }}</div>
+                <div class="col-2 p-2" style="text-align:right;">交付日期：</div>
+                <div class="col-2 p-2 content">{{ borrow.lend_date|default:"" }}</div>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-2 p-2" style="text-align:right;">歸還：</div>
+                <div class="col-2 p-2 content">{{ borrow.return_owner|default:"" }}</div>
+                <div class="col-2 p-2" style="text-align:right;">歸還日期：</div>
+                <div class="col-2 p-2 content">{{ borrow.return_date|default:"" }}</div>
+            </div>
+        </li>
+    </ul>
+</fieldset>
+<fieldset>
+    <legend>物品資訊</legend>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <div class="row">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>標籤編號</th>
+                            <th>資產類別</th>
+                            <th>品牌</th>
+                            <th>物品</th>
+                            <th>備註</th>
+                            <th>刪除</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.asset.label_no }}</td>
+                            <td>{{ item.asset.type }}</td>
+                            <td>{{ item.asset.brand }}</td>
+                            <td>{{ item.asset.model }}</td>
+                            <td>{{ item.asset.desc }}</td>
+                            <td style="text-align: center"><a href="/borrow/item_delete/{{ borrow.form_no }}/{{ item.asset.pk }}/" class="btn btn-danger" onclick="return confirm('Are you sure?')">刪除</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </li>
+    </ul>
+</fieldset>
+{% if user.is_authenticated %}
+<fieldset>
+    <legend>管理者</legend>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <div class="p-3">
+                <form method="post" action="{% url 'borrow_update' borrow.pk %}">
+                  {% csrf_token %}
+                  {% crispy admin_form %}
+                    <div class="pb-4" style="text-align: center;">
+                        <input class="btn btn-success" type="submit" value="修改" />
+                        <a href="{% url 'form_delete' borrow.form_no %}" class="btn btn-danger" onclick="return confirm('Are you sure?')">刪除</a>
+                    </div>
+                </form>
+            </div>
+        </li>
+    </ul>
+</fieldset>
+{% endif %}
+<div style="text-align:left;color:#EEE">
+    最後修改：{{ borrow.update_at|date:'Y-m-d' }} {{ borrow.update_by }}
+</div>
+
+{% endblock sub_container %}
+
+{% block js %}
+
+{% endblock js %}
+{% block css %}
+
+{% endblock css %}

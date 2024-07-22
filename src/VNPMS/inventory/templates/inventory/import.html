@@ -1,0 +1,33 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<form action="" method="post" class="form-group font-weight-bold align-middle" id="import_form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card-body">
+        <div>請選擇Template檔案(*.xlsx)
+            <a href="{% static "inventory/import_template.xlsx" %}" target="_blank">下載範本檔</a>
+        </div>
+        <div class="row">
+            <div id="div_id_files" class="form-group">
+                <input name="files1" accept=".xls,.xlsx" class="clearablefileinput" id="id_files" type="file">
+                <button type="submit" class="btn btn-primary" id="send">直接匯入</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script>
+if("{{ action }}" == "DONE") {
+    alert("匯入完成");
+}
+</script>
+{% endblock js %}
+
+{% block ready %}
+$("form").submit(function(e) {
+    $("body").loading();
+});
+{% endblock ready %}

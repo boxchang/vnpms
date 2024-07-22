@@ -1,0 +1,391 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% load i18n %}
+{% block title %}PMS{% endblock %}
+{% block css %}
+    <style>
+        #Wait, #On-Going, #Finished, #pendding { list-style-type: none; margin: 0; float: left; padding: 5px; width: 143px;}
+        #Wait div, #On-Going div, #Finished div, #pendding div { margin: 5px; padding: 5px; font-size: 0.95em; width: 120px;}
+        .card-body{
+            padding: 0px;
+            border: thin;
+            min-height: 30px;
+        }
+        .big{
+            background-color: #ccf2ff;
+        }
+        th{
+            font-size: 15px;
+        }
+        td{
+            font-size: 14px;
+        }
+        option{
+            font-size: 14px;
+        }
+    .droptrue{
+        width:100%;
+        max-height:350px;
+        overflow: auto;
+    }
+    </style>
+{% endblock css %}
+{% block js %}
+
+{% endblock js %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active" aria-current="page">{% trans "home" %}</li>
+
+{% endblock %}
+{% block content %}
+    <div class="card">
+        <div class="card-header" style="background-color: #e0e0e0">
+            <div class="row">
+                <div class="col-4"><h3>Dashboard</h3></div>
+                <div class="col-8 text-right">
+                    <a href="{% url "request_page" pk %}" role="button" data-toggle="tooltip" data-placement="bottom" title="the detail of projects"><i class="far fa-credit-card fa-2x"></i></a>
+                    <a href="{% url "request_history" %}" role="button" data-toggle="tooltip" data-placement="bottom" title="all requests"><i class="fas fa-book fa-2x"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 5px;background-color: #fcfcfc">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header big">{% trans "waiting" %}</div>
+                        <div class="card-body" id="body1">
+                            <div id="Wait" class="droptrue" data-code="1" style="width:100%;">
+                                {% for o_request in requests %}
+                                    {% if o_request.status.status_en == 'Wait' %}
+                                        <div class="card" style="width:97%;background-color: #ffffe6;" data-position="Wait" data-num="{{ o_request.request_no }}">
+                                            <div class="card-header" style="width:97%; text-align: left">
+                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                            </div>
+                                            <div class="card-body" style="width:97%;">
+                                                <span>
+                                                    {{ o_request.title }}
+                                                </span>
+                                                <span class="align-bottom" style="float:right">
+                                                    {% if o_request.owner.shot %}
+                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% else %}
+                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header big">{% trans "on_going" %}</div>
+                        <div class="card-body">
+                            <div id="On-Going" class="droptrue" style="width:100%;" data-code="2">
+                                {% for o_request in requests %}
+                                    {% if o_request.status.status_en == 'On-Going' %}
+                                        <div class="card" style="width:97%;background-color: #ffffe6;" data-position="On-Going" data-num="{{ o_request.request_no }}">
+                                            <div class="card-header" style="width:97%; text-align: left">
+                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                            </div>
+                                            <div class="card-body" style="width:97%;">
+                                                <span>
+                                                    {{ o_request.title }}
+                                                </span>
+                                                <span class="align-bottom" style="float:right">
+                                                    {% if o_request.owner.shot %}
+                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% else %}
+                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header big">{% trans "finished" %}</div>
+                        <div class="card-body">
+                            <div id="Finished" class="droptrue" style="width:100%;" data-code="4">
+                                {% for o_request in requests %}
+                                    {% if o_request.status.status_en == 'Done' %}
+                                        <div class="card" style="width:97%;background-color: #ffffe6;"data-position="Finished" data-num="{{ o_request.request_no }}">
+                                            <div class="card-header" style="width:97%; text-align: left">
+                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                            </div>
+                                            <div class="card-body" style="width:97%;">
+                                                <span>
+                                                    {{ o_request.title }}
+                                                </span>
+                                                <span class="align-bottom" style="float:right">
+                                                    {% if o_request.owner.shot %}
+                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% else %}
+                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header big">{% trans "pending" %}</div>
+                        <div class="card-body">
+                            <div id="pending" class="droptrue" style="width:100%;" data-code="5">
+                                {% for o_request in requests %}
+                                    {% if o_request.status.status_en == 'Pending' %}
+                                        <div class="card" style="width:97%;background-color: #ffffe6;" data-position="pendding" data-num="{{ o_request.request_no }}">
+                                            <div class="card-header" style="width:97%; text-align: left">
+                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                            </div>
+                                            <div class="card-body" style="width:97%;">
+                                                <span>
+                                                    {{ o_request.title }}
+                                                </span>
+                                                <span class="align-bottom" style="float:right">
+                                                    {% if o_request.owner.shot %}
+                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% else %}
+                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br style="clear:both">
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" style="background-color: #e0e0e0">
+            Project
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover" id="table1">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            {% trans "project_name" %}
+                        </th>
+                        <th>
+                            {% trans "project_code" %}
+                        </th>
+                        <th>
+                            {% trans "project_desc" %}
+                        </th>
+                        <th>
+                            {% trans "create_by" %}
+                        </th>
+                        <th>
+                            {% trans "create_at" %}
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+                        <td>
+                            <a href="{% url 'project_manage' project.pk %}">{{ project.name }}</a>
+                        </td>
+                        <td>
+                            {{ project.short_name }}
+                        </td>
+                        <td>
+                            {{ project.desc|striptags }}
+                        </td>
+                        <td>
+                            {{ project.create_by }}
+                        </td>
+                        <td>
+                            {{ project.create_at }}
+                        </td>
+                        <td>
+                            <a href="{% url "project_create" %}" role="button"><i class="fa fa-plus fa-3"></i></a>
+                            <a href="{% url "project_edit" project.pk %}" role="button"><i class="fa fa-edit fa-3"></i></a>
+                            {% if project.create_by == user %}
+                            <a href="{% url 'project_delete' project.pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fa fa-times fa-3"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" style="background-color: #e0e0e0">
+            Request
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover" id="table1">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            {% trans "belong_project" %}
+                        </th>
+                        <th>
+                            {% trans "title" %}
+                        </th>
+                        <th>
+                            {% trans "status" %}
+                        </th>
+                        <th>
+                            {% trans "desc" %}
+                        </th>
+                        <th>
+                            {% trans "owner" %}
+                        </th>
+                        <th>
+                            {% trans "create_by" %}
+                        </th>
+                        <th>
+                            {% trans "create_at" %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in requests %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'request_detail' request.pk %}">{{ request.request_no }}</a>
+                        </td>
+                        <td>
+                            {{ request.project.short_name }}
+                        </td>
+                        <td>
+                            {{ request.title }}
+                        </td>
+                        <td>
+                            {{ request.status }}
+                        </td>
+                        <td>
+                            {{ request.level }}
+                        </td>
+                        <td>
+                            {{ request.owner }}
+                        </td>
+                        <td>
+                            {{ request.create_by }}
+                        </td>
+                        <td>
+                            {{ request.create_at }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" style="background-color: #e0e0e0">
+            Problem
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            {% trans "belong_project" %}
+                        </th>
+                        <th>
+                            {% trans "title" %}
+                        </th>
+                        <th>
+                            {% trans "replies" %}
+                        </th>
+                        <th>
+                            {% trans "create_by" %}
+                        </th>
+                        <th>
+                            {% trans "create_at" %}
+                        </th>
+                        <th>
+                            {% trans "update_by" %}
+                        </th>
+                        <th>
+                            {% trans "update_at" %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for problem in problems %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'problem_detail' problem.pk %}">{{ problem.problem_no }}</a>
+                        </td>
+                        <td>
+                            {{ problem.project.short_name }}
+                        </td>
+                        <td>
+                            {{ problem.title }}
+                        </td>
+                        <td>
+                            -
+                        </td>
+                        <td>
+                            {{ problem.create_by }}
+                        </td>
+                        <td>
+                            {{ problem.create_at }}
+                        </td>
+                        <td>
+                            {{ problem.update_by }}
+                        </td>
+                        <td>
+                            {{ problem.update_at }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+
+
+
+
+

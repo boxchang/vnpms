@@ -1,0 +1,89 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="row p-3">
+    <div class="col-9">
+        <fieldset>
+            <legend><span class="p-3">Item Main Data</span></legend>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-2 p-2" style="text-align:right;">狀態：</div>
+                        <div class="col-2 p-2">
+                            {% if item.enabled %}
+                            <span class="badge badge-success">啟用</span>
+                            {% else %}
+                            <span class="badge badge-danger">停用</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-4 p-2" style="text-align:right;"></div>
+                        <div class="col-2 p-2 content"></div>
+                        <div class="col-2 p-2"></div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-2 p-2" style="text-align:right;">料號：</div>
+                        <div class="col-2 p-2 content">{{ item.item_code }}</div>
+                        <div class="col-2 p-2" style="text-align:right;">SAP CODE：</div>
+                        <div class="col-2 p-2 content">{{ item.sap_code|default:"" }}</div>
+                        <div class="col-2 p-2" style="text-align:right;">VENDOR CODE：</div>
+                        <div class="col-2 p-2 content">{{ item.vendor_code|default:"" }}</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-2 p-2" style="text-align:right;">大分類：</div>
+                        <div class="col-2 p-2 content">{{ item.item_type.category.family }}</div>
+                        <div class="col-2 p-2" style="text-align:right;">中分類：</div>
+                        <div class="col-2 p-2 content">{{ item.item_type.category }}</div>
+                        <div class="col-2 p-2" style="text-align:right;">小分類：</div>
+                        <div class="col-2 p-2 content">{{ item.item_type }}</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-2 p-2" style="text-align:right;">參考價格：</div>
+                        <div class="col-2 p-2 content">{{ item.price }}</div>
+                        <div class="col-2 p-2" style="text-align:right;">單位：</div>
+                        <div class="col-2 p-2 content">{{ item.unit }}</div>
+                        <div class="col-2 p-2" style="text-align:right;">庫存品：</div>
+                        <div class="col-2 p-2 content">{{ item.is_stock }}</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-2 p-2" style="text-align:right;">品名：</div>
+                        <div class="col-6 p-2 content">{{ item.spec }}</div>
+                    </div>
+                </li>
+            </ul>
+        </fieldset>
+    </div>
+    <div class="col-3">
+        <div style="padding-top: 40px">
+        {% if pics %}
+            {% for pic in pics %}
+                <a href="{{ pic.files.url }}" target="_blank"><img src="{{ pic.files.url }}" /></a>
+            {% endfor %}
+        {% else %}
+            <img src="/static/pictures/no_pic.jpg" />
+        {% endif %}
+        </div>
+    </div>
+</div>
+<div class="p-3">
+    {% if perms.users.perm_misc_apply %}
+    <div style="text-align:right;color:#EEE">
+        最後修改：{{ item.update_at|date:'Y-m-d' }} {{ item.update_by }}
+    </div>
+    <div style="text-align:center">
+        <a href="{% url 'item_update' item.id %}" class="btn btn-info">修改</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block js %}
+
+{% endblock js %}

@@ -1,0 +1,265 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<form method="post" action="{% url 'inv_apply' %}" enctype="multipart/form-data">
+{% csrf_token %}
+<div class="p-3">
+    {% crispy form %}
+    <hr />
+    <div class="row">
+        <div class="col">
+            <input type="button" onclick="popupfunc();" class='btn btn-info m-1' value="請購物品查詢">
+        </div>
+        <div class="col">
+            <a href='#' id='key_template' class='btn btn-light m-1'>鑰匙申請範本</a>
+            <a href='#' id='stamp_template' class='btn btn-light m-1'>印章申請範本</a>
+            <a href='#' id='card_template' class='btn btn-light m-1'>名片申請範本</a>
+        </div>
+    </div>
+</div>
+<div>
+    <div class="col">
+        <div style="background: #ffffe7">
+            <div id="cart_list"></div>
+            <div id="cart_total_price" class="p-3" style="text-align: right"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <div class="col">
+        {% crispy attach_form %}
+    </div>
+</div>
+<hr />
+<div style="text-align:center;height: 100px">
+    <input type="hidden" id="hidCart_list" name="hidCart_list" />
+    <input type="hidden" id="hidTotal_price" name="hidTotal_price" />
+    <input type="submit" value="確認送簽" class='btn btn-info' onclick="return validation()" />
+</div>
+</form>
+{% endblock %}
+{% block js %}
+<script>
+    function popupfunc() {
+        x = window.open("/inventory/search/","popup_page","location=1,status=1,scrollbars=1,  width=1000,height=1000")
+        x.moveTo(0, 0);
+    }
+
+    function dept_change() {
+        $.ajax({
+            url: '{% url 'get_deptuser_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "unit": $("#id_unit :selected").val()},
+            success: function(data) {
+                $("#id_requester").html(data);
+            }
+        });
+    }
+
+    //送出時驗證
+    function validation() {
+        if(list.length == 0) {
+            alert("請選擇請領品項");
+            return false;
+        }
+        return confirm('確認資料是否正確')
+    }
+
+    //可在Javascript中使用如同C#中的string.format
+    //使用方式 : var fullName = String.format('Hello. My name is {0} {1}.', 'FirstName', 'LastName');
+    String.format = function ()
+    {
+        var s = arguments[0];
+        if (s == null) return "";
+        for (var i = 0; i < arguments.length - 1; i++)
+        {
+            var reg = getStringFormatPlaceHolderRegEx(i);
+            s = s.replace(reg, (arguments[i + 1] == null ? "" : arguments[i + 1]));
+        }
+        return cleanStringFormatResult(s);
+    }
+    //可在Javascript中使用如同C#中的string.format (對jQuery String的擴充方法)
+    //使用方式 : var fullName = 'Hello. My name is {0} {1}.'.format('FirstName', 'LastName');
+    String.prototype.format = function ()
+    {
+        var txt = this.toString();
+        for (var i = 0; i < arguments.length; i++)
+        {
+            var exp = getStringFormatPlaceHolderRegEx(i);
+            txt = txt.replace(exp, (arguments[i] == null ? "" : arguments[i]));
+        }
+        return cleanStringFormatResult(txt);
+    }
+    //讓輸入的字串可以包含{}
+    function getStringFormatPlaceHolderRegEx(placeHolderIndex)
+    {
+        return new RegExp('({)?\\{' + placeHolderIndex + '\\}(?!})', 'gm')
+    }
+    //當format格式有多餘的position時，就不會將多餘的position輸出
+    //ex:
+    // var fullName = 'Hello. My name is {0} {1} {2}.'.format('firstName', 'lastName');
+    // 輸出的 fullName 為 'firstName lastName', 而不會是 'firstName lastName {2}'
+    function cleanStringFormatResult(txt)
+    {
+        if (txt == null) return "";
+        return txt.replace(getStringFormatPlaceHolderRegEx("\\d+"), "");
+    }
+
+
+    changeSelect = function(category_id, asset_type)
+    {
+        $.get('/inventory/typeapi/'+category_id, function (data){
+            $.each(data, function(index, item){
+                asset_type.append('<option value="' + item.id + '">' + item.type_name + '</option>')
+            })
+        })
+    }
+
+    var list = [];
+
+    //新增品項
+    cart_add = function(item_code, spec, price, unit) {
+        var item = {"item_code": item_code, "spec": spec, "price": price, "qty": 1, "total": price*1, "unit": unit, "comment": ""};
+        var valid = true;
+        list.forEach(function(list_item) {
+            if(list_item.item_code == item_code){
+                valid = false;
+            }
+        });
+        if(valid){
+            list.push(item);
+        }else{
+            alert("清單已存在");
+        }
+        cart_show(list);
+    }
+
+    //新增雜項
+    cart_misc_add = function(item_code, unit, spec, price) {
+        var item = {"item_code": item_code, "spec": spec, "price": price, "qty": 1, "total": price*1, "unit": unit, "comment": ""};
+        list.push(item);
+        cart_show(list);
+    }
+
+    //刪除品項
+    cart_remove = function(spec) {
+        var tmp_list = [];
+        list.forEach(function(item) {
+            if(item.spec != spec){
+                tmp_list.push(item);
+            }
+        });
+        list = tmp_list;
+        cart_show(list);
+    }
+
+    //單價變動
+    cart_qty = function(item_code, qty) {
+        list.forEach(function(item) {
+            if(item.item_code == item_code){
+                item.qty = qty;
+                item.total = item.price*qty;
+            }
+        });
+        cart_show(list);
+    }
+
+    //備註
+    cart_comment = function(item_code, comment) {
+        list.forEach(function(item) {
+            if(item.item_code == item_code){
+                item.comment = comment;
+            }
+        });
+        cart_show(list);
+    }
+
+    //顯示請購清單
+    cart_show = function(data) {
+        var total_price = 0;
+        var tmp_table = "<table class=\"table\"><tr><th>品名&規格</th><th width='100px'>參考價格</th><th width='100px'>數量</th><th width='80px'>單位</th><th width='100px'>參考總價</th><th>備註</th><th></th></tr>{0}</table>";
+        var tmp_item = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td></tr>";
+        var tmp_qty = "<input type=\"text\" class=\"form-control\" value=\"{0}\" onchange=\"cart_qty('{1}', this.value)\">";
+        var tmp_comment = "<input type=\"text\" class=\"form-control\" value=\"{0}\" onchange=\"cart_comment('{1}', this.value)\">";
+        var tmp_btn = "<button type='button' class='btn btn-danger' onclick=\"cart_remove('{0}')\">移除</button>";
+        var temp = "";
+        var items = "";
+        var remove_btn = "";
+        var add_qty = "";
+        $("#cart_list").html("");
+        $.each(data, function(index, item){
+            remove_btn = String.format(tmp_btn, item.spec);
+            add_qty = String.format(tmp_qty, item.qty, item.item_code);
+            comment = String.format(tmp_comment, item.comment, item.item_code)
+            temp = String.format(tmp_item, item.spec, item.price, add_qty, item.unit, item.total, comment, remove_btn);
+            items = items + temp;
+            total_price += item.price * item.qty;
+        })
+        $("#cart_list").append(String.format(tmp_table, items));
+        $("#hidCart_list").val(JSON.stringify(list));
+        $("#hidTotal_price").val(total_price);
+        $("#cart_total_price").html("總金額："+total_price);
+    }
+
+    //Ready
+    $(function (){
+        category = $('#id_category');
+        asset_type = $('#id_type');
+
+        changeSelect(0, asset_type);
+
+        category.change(function(){
+            asset_type.empty().append('<option value="">---------</option>');
+            changeSelect(this.value, asset_type)
+        })
+
+        //物品清單
+        $("#button-id-search").click(function() {
+            var tmp_table = "<table class=\"table\"><tr><th>品名&規格</th><th width=\"100px\">參考價格</th><th></th></tr>{0}</table>";
+            var tmp_item = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>";
+            var tmp_btn = "<button type='button' class='btn btn-info' onclick=\"cart_add('{0}', '{1}', '{2}', '{3}')\">加入</button>";
+            var temp="";
+            var items="";
+            var add_btn=""
+
+            type_id = $("#id_type").val();
+            keyword = $("#id_keyword").val();
+            $("#search_result").html(""); //初始化
+            $.ajax({
+                url: '{% url 'catogory_itemapi' %}', type: 'post',
+                dataType: 'json',
+                data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "type_id": type_id, "keyword": keyword},
+                success: function(data) {
+                    //取得種類清單
+                    $("#search_result").html();
+                    $.each(data, function(index, item){
+
+                        if(item.spec=="雜項"){
+                            txtSpec = "<input type=\"text\" name=\"spec\" id=\"spec\">";
+                            txtPrice = "<input type=\"text\" name=\"price\" id=\"price\" value=\"0\">";
+                            tmp_btn = "<button type='button' class='btn btn-warn' onclick=\"cart_misc_add('{0}', '{1}')\">加入</button>";
+                            add_btn = String.format(tmp_btn, item.item_code, item.unit);
+                            temp = String.format(tmp_item, txtSpec, txtPrice, add_btn);
+                            items = items + temp;
+                        }else{
+                            add_btn = String.format(tmp_btn, item.item_code, item.spec, item.price, item.unit);
+                            temp = String.format(tmp_item, item.spec, item.price, add_btn);
+                            items = items + temp;
+                        }
+                    })
+                    $("#search_result").append(String.format(tmp_table, items));
+                }
+            });
+
+        })
+
+        $("#id_keyword").on('keypress', function(e) {
+            if(e.which==13) {
+                $("#button-id-search").click();
+            }
+            return false;
+        })
+    })
+</script>
+{% endblock js %}

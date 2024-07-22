@@ -1,0 +1,45 @@
+{% extends 'monitor/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="row p-3">
+    <div class="col-1"></div>
+    <div class="col-10">
+    {% for config in configs %}
+        <div class="row">
+            <div class="col-1 h3 text-center">{{ config.svr_name }}</div>
+            <div class="col-2 h3 text-center">{{ config.ip_addr }}</div>
+            <div class="col-3">
+                <div class="row">
+                {% for disk in config.disk %}
+                    <div class="col-2">
+                        <img src="{% static 'monitor/disk.png' %}">
+                        {{ disk.device }}
+                    </div>
+                    <div class="col-4 {{ disk.background }} text-white h3 text-center">{{ disk.usage_percent }}%</div>
+
+                {% endfor %}
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="row">
+                    <div class="col-2">
+                        <img src="{% static 'monitor/cpu.png' %}">
+                    </div>
+                    <div class="col-4 bg-success text-white h3 text-center">{{ config.cpu }}%</div>
+                    <div class="col-2">
+                        <img src="{% static 'monitor/memory.png' %}">
+                    </div>
+                    <div class="col-4 bg-success text-white h3 text-center">{{ config.memory }}%</div>
+                </div>
+            </div>
+        </div>
+        <hr />
+    {% endfor %}
+    </div>
+    <div class="col-1"></div>
+</div>
+{% endblock %}
+{% block js %}
+
+{% endblock js %}

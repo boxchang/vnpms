@@ -1,0 +1,104 @@
+{% load static %}
+{% load static %}
+{% load i18n %}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <a href="javascript:history.back()" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>&nbsp;
+            <a href="{% url 'search' %}" class="btn btn-warning"><i class="fa fa-home"></i></a>
+            <div class="ml-md-auto">
+                {% if user.is_authenticated %}
+                <a class="btn btn-warning btn-sm" href="{% url 'helpdesk_edit' pk %}" role="button"><i class="far fa-edit"></i>編輯SOP</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'helpdesk_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>刪除SOP</a>
+                <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <h3 class="font-weight-bold pl-3 pt-3">
+                [{{ data.help_type.type }}]&nbsp{{ data.title }}&nbsp&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ data.help_no }}</span></small>
+                <small style="font-size: 50%">
+                    <a href="#" onclick="function f() {
+                      $('#share_url').show();
+                    }f();"><i class="fas fa-share-alt text-warning"></i></a>
+                </small>
+            </h3>
+        </div>
+        <div class="col-md-4 pt-4" style="text-align:right;padding-right:40px;">
+            {{ data.update_by }}&nbsp&nbsp{{ data.update_at|date:'Y-m-d H:i' }}
+        </div>
+    </div>
+
+    <div style="display: none;" class="m-3" id="share_url">Share:<span class="border p-3 bg-light">{{ ABSOLUTE_ROOT }}/helpdesk/{{ help_no }}</span></div>
+    <div class="w-100"></div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                {% if files %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width:10%">
+                                        #
+                                    </th>
+                                    <th style="width:70%">
+                                        {% trans "desc" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "attachment" %}
+                                    </th>
+                                    <th style="width:10%;text-align: center;">
+                                        {% trans "Delete" %}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for file in files %}
+                                <tr>
+                                    <td>
+                                        {{ forloop.counter }}
+                                    </td>
+                                    <td>
+                                        {{ file.description }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ file.files.url }}"><i class="fas fa-file-download fa-2x text-info"></i></a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'helpdesk_file_delete' file.pk %}?q={{ pk }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times fa-2x text-info"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                <table class="table table-bordered table-sm col-12">
+                  <tr>
+                        <td style="padding: 80px;font-size: 1em;">
+                            {{ data.desc|safe }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'highlight\highlight.pack.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'highlight\styles\default.css' %}">
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+
+<script>
+
+</script>

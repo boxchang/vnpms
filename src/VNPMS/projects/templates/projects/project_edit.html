@@ -1,0 +1,62 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+{% block title %}
+    {% if form.instance.id %}
+        {% trans "project_edit" %}
+    {% else %}
+        {% trans "project_create" %}
+    {% endif %}
+{% endblock %}
+{% block breadcrumb %}
+{{ block.super }}
+    {% if form.instance.id %}
+    <li class="breadcrumb-item"><a href="{% url 'project_manage' pk=project.pk %}">{{ project.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "project_edit" %}</li>
+    {% else %}
+    <li class="breadcrumb-item active" aria-current="page">{% trans "project_create" %}</li>
+    {% endif %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-1"></div>
+  <div class="col-10">
+      <div class="card">
+          <div class="card-header">
+          {% if form.instance.id %}
+            {% trans "project_edit" %}
+          {% else %}
+            {% trans "project_create" %}
+          {% endif %}
+          </div>
+          <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            {% crispy form %}
+            <button type="submit" class="btn btn-primary" id="send">Save</button>
+            <input type=button class="btn btn-primary" value="Cancel" onClick="javascript:history.go(-1);">
+          </form>
+          {% for field in form. %}
+            {{ field.errors }}
+            {{ field.label_tag }}: {{ field }}
+          {% endfor %}
+          </div>
+      </div>
+  </div>
+  <div class="col-1"></div>
+</div>
+{% endblock content %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock js %}
+
+{% block css %}
+<style>
+.django-ckeditor-widget {
+width: 100%;
+}
+</style>
+{% endblock %}

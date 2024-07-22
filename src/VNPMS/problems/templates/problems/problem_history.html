@@ -1,0 +1,65 @@
+{% extends 'bases/menu_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block title %} {% trans "project_manage" %} {% endblock %}
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'problem_page' pk=project.pk %}">{{ project.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">問題紀錄</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header pb-1 pt-1">
+        <div class="row">
+            查詢條件
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="" method="post" class="form-group font-weight-bold align-middle" id="request_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% crispy form %}
+        </form>
+    </div>
+</div>
+<table class="table table-bordered table-striped" style="font-size:0.9em;">
+    <thead class="thead-dark">
+        <tr>
+            <th>需求編號</th>
+            <th>問題類型</th>
+            <th>標題</th>
+            <th>狀態</th>
+            <th>建立者</th>
+            <th>建立日期</th>
+            <th>更新者</th>
+            <th>更新日期</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for problem in problems %}
+            <tr>
+                <td><a href="{% url 'problem_detail' problem.pk %}">{{ problem.problem_no }}</a></td>
+                <td>{{ problem.problem_type }}</td>
+                <td>{{ problem.title }}</td>
+                <td>{{ problem.problem_status }}</td>
+                <td>{{ problem.create_by }}</td>
+                <td>{{ problem.create_at|date:'Y-m-d' }}</td>
+                <td>{{ problem.update_by }}</td>
+                <td>{{ problem.update_at|date:'Y-m-d' }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+<script src="{% static 'bootstrap_table/table.js' %}"></script>
+<script>
+
+</script>
+{% endblock %}

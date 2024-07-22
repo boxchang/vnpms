@@ -1,0 +1,71 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+
+{% endblock ready %}
+{% block css %}
+<style>
+/* 會員清單的標題列要可以點擊排序 */
+/* #member_data > table > thead > tr > th:not(:nth-child(1)) { */
+#key_user > table > thead > tr > th {
+    cursor: pointer;
+}
+
+.data-row {
+    cursor: pointer;
+}
+</style>
+{% endblock css %}
+{% block js %}
+<script src="{% static 'base\js\jquery.redirect.js' %}"></script>
+<script>
+    var key_user = {
+      'info': function(sap_emp_no) {
+          var record_dt = $("#id_record_dt").val();
+          $.redirect('{% url 'prod_record_detail' %}', {'record_dt': record_dt, 'sap_emp_no': sap_emp_no, 'csrfmiddlewaretoken': '{{csrf_token}}'});
+      }
+    };
+</script>
+{% endblock js %}
+{% block content %}
+<div class="row pt-3">
+    <div class="col-1"></div>
+    <div class="col-10">
+        <form action="{% url 'prod_record_manage' %}" method="POST">
+            {% csrf_token %}
+            {% crispy form %}
+        </form>
+        <div id="key_user" class="table-responsive">
+            <table border="1" class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="text-center table-active" style="display: table;table-layout: fixed;width: 100%;">
+                        <th style="text-align: center;">SAP員編</th>
+                        <th style="text-align: center;">姓名</th>
+                        <th style="text-align: center;">人時(分)</th>
+                        <th style="text-align: center;">機時(分)</th>
+                        {% for worktype in worktypes %}
+                        <th style="text-align: center">{{ worktype.type_name }}</th>
+                        {% endfor %}
+                        <th style="text-align: center;">總人時</th>
+                    </tr>
+                </thead>
+                <tbody style="height:600px; overflow:auto;display: block;">
+                    {% for record in records %}
+                    <tr style="display: table;table-layout: fixed;width: 100%;text-align: center" onclick="key_user.info('{{ record.sap_emp_no }}');" class="data-row">
+                        <td>{{ record.sap_emp_no }}</td>
+                        <td>{{ record.username }}</td>
+                        <td>{{ record.labor_time }}</td>
+                        <td>{{ record.mach_time }}</td>
+                        {{ record.html|safe }}
+                        <td style="{{ record.css_overtime }}">{{ record.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-1"></div>
+</div>
+{% endblock %}

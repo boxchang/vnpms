@@ -1,0 +1,193 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<form method="post" action="{% url 'inv_apply' %}" enctype="multipart/form-data">
+{% csrf_token %}
+<div class="p-3">
+    {% crispy form %}
+    <hr />
+    <div class="row">
+        <div class="col">
+            <input type="button" onclick="popupfunc();" class='btn btn-info m-1' value="請購物品查詢">
+        </div>
+        <div class="col">
+            {% for template in templates %}
+            <a href='{{ template.key_file.url }}' id='key_template' class='btn btn-light m-1'>鑰匙申請單範本</a>
+            <a href='{{ template.stamp_file.url }}' id='stamp_template' class='btn btn-light m-1'>印章申請單範本</a>
+            <a href='{{ template.print_file.url }}' id='card_template' class='btn btn-light m-1'>印刷品申請單範本</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div>
+    <div class="col">
+        <div style="background: #ffffe7">
+            <div id="cart_list"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <div class="col">
+        {% crispy attach_form %}
+    </div>
+</div>
+<hr />
+<div style="text-align:center;height: 100px">
+    <input type="hidden" id="hidCart_list" name="hidCart_list" />
+    <input type="submit" value="確認送簽" class='btn btn-info' onclick="return validation()" />
+</div>
+</form>
+{% endblock %}
+{% block js %}
+<script>
+    function open_window(url) {
+        window.open(url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+    }
+
+    function popupfunc() {
+        x = window.open("/inventory/search/","popup_page","location=1,status=1,scrollbars=1,  width=1000,height=1000")
+        x.moveTo(0, 0);
+    }
+
+    function dept_change() {
+        $.ajax({
+            url: '{% url 'get_deptuser_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "unit": $("#id_unit :selected").val()},
+            success: function(data) {
+                $("#id_requester").html(data);
+            }
+        });
+    }
+
+    //送出時驗證
+    function validation() {
+        if(list.length == 0) {
+            alert("請選擇請領品項");
+            return false;
+        }else{
+            var tmp="";
+            for(var i=0;i<list.length;i++){
+                if(tmp=="") tmp = list[i].category;
+                if(list[i].category != tmp){
+                    alert("同單據物品類別必須相同");
+                    return false;
+                }
+            }
+        }
+
+        return confirm('確認資料是否正確')
+    }
+
+    changeSelect = function(category_id, asset_type)
+    {
+        $.get('/inventory/typeapi/'+category_id, function (data){
+            $.each(data, function(index, item){
+                asset_type.append('<option value="' + item.id + '">' + item.type_name + '</option>')
+            })
+        })
+    }
+
+    var list = [];
+
+    //新增品項
+    cart_add = function(category, item_code, spec, unit, pic) {
+        var item = {"item_code": item_code, "spec": spec, "qty": 1, "unit": unit, "comment": "", "category": category, "pic": pic};
+        var valid = true;
+        list.forEach(function(list_item) {
+            if(list_item.item_code == item_code){
+                valid = false;
+            }
+        });
+        if(valid){
+            list.push(item);
+        }else{
+            alert("清單已存在");
+        }
+        cart_show(list);
+    }
+
+    //新增雜項
+    cart_misc_add = function(category, item_code, unit, spec) {
+        var item = {"item_code": item_code, "spec": spec, "qty": 1, "unit": unit, "comment": "", "category": category};
+        list.push(item);
+        cart_show(list);
+    }
+
+    //刪除品項
+    cart_remove = function(spec) {
+        var tmp_list = [];
+        list.forEach(function(item) {
+            if(item.spec != spec){
+                tmp_list.push(item);
+            }
+        });
+        list = tmp_list;
+        cart_show(list);
+    }
+
+    //單價變動
+    cart_qty = function(item_code, qty) {
+        list.forEach(function(item) {
+            if(item.item_code == item_code){
+                item.qty = qty;
+            }
+        });
+        cart_show(list);
+    }
+
+    //備註
+    cart_comment = function(item_code, comment) {
+        list.forEach(function(item) {
+            if(item.item_code == item_code){
+                item.comment = comment;
+            }
+        });
+        cart_show(list);
+    }
+
+    //顯示請購清單
+    cart_show = function(data) {
+        var tmp_table = "<table class=\"table\"><tr><th width='100px'>物品類別</th><th>品名&規格</th><th width='100px'>數量</th><th width='80px'>單位</th><th>備註</th><th></th></tr>{0}</table>";
+        var tmp_item = "<tr><td>{0}</td><td><a href=\"#\" onclick=\"open_window('/media/{1}')\">{2}</a></td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td></tr>";
+        var tmp_qty = "<input type=\"text\" class=\"form-control\" value=\"{0}\" onchange=\"cart_qty('{1}', this.value)\">";
+        var tmp_comment = "<input type=\"text\" class=\"form-control\" value=\"{0}\" onchange=\"cart_comment('{1}', this.value)\">";
+        var tmp_btn = "<button type='button' class='btn btn-danger' onclick=\"cart_remove('{0}')\">移除</button>";
+        var temp = "";
+        var items = "";
+        var remove_btn = "";
+        var add_qty = "";
+        $("#cart_list").html("");
+        $.each(data, function(index, item){
+            remove_btn = String.format(tmp_btn, item.spec);
+            add_qty = String.format(tmp_qty, item.qty, item.item_code);
+            comment = String.format(tmp_comment, item.comment, item.item_code);
+            temp = String.format(tmp_item, item.category, item.pic, item.spec, add_qty, item.unit, comment, remove_btn);
+            items = items + temp;
+        })
+        $("#cart_list").append(String.format(tmp_table, items));
+        $("#hidCart_list").val(JSON.stringify(list));
+    }
+
+    //Ready
+    $(function (){
+        category = $('#id_category');
+        asset_type = $('#id_type');
+
+        changeSelect(0, asset_type);
+
+        category.change(function(){
+            asset_type.empty().append('<option value="">---------</option>');
+            changeSelect(this.value, asset_type)
+        })
+
+        $("#id_keyword").on('keypress', function(e) {
+            if(e.which==13) {
+                $("#button-id-search").click();
+            }
+            return false;
+        })
+    })
+</script>
+{% endblock js %}

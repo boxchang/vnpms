@@ -1,0 +1,85 @@
+{% extends 'bases/base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search Results</title>
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+
+{% block container %}
+<div class="card-header">
+    {% if user.is_authenticated %}
+    <div class="row">
+        <div class="col"><h2>知識管理</h2></div>
+        <div class="ml-md-auto">
+            <a class="btn btn-warning btn-sm" href="{% url 'helpdesk_create' %}" role="button"><i class="far fa-edit"></i>新增SOP</a>
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<div class="card-body">
+    <form method="post" action="{% url 'search' %}">
+    {% csrf_token %}
+    <div class="row align-items-center" style="height:100px;">
+        <div class="col-8 input-group">
+                <div class="col-xs-2">
+                    <select id="help_type" name="help_type" class="form-control">
+                        <option value="">ALL</option>
+                        {% for data in helptypes %}
+                        <option value="{{ data.tid }}" {% if data.tid == helptype_id %}selected{% endif %}>{{ data.type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input class="form-control" type="text" placeholder="keyword" name="keywords" value="{{ keywords }}">
+                <button type="submit" class="btn btn-warning">Search</button>
+        </div>
+        <div class="col-4">
+
+        </div>
+    </div>
+    {% if results %}
+        {% for result in page_results %}
+        <div class="row p-2 border-bottom">
+            <div class="col-1"><span class="badge badge-warning">{{ result.help_type }}</span></div>
+            <div class="col-6"><a href="{% url 'helpdesk_detail' result.pk %}">{{ result.title }}</a></div>
+            <div class="col-2"><span style="font-size: 1em">{{ result.update_by }}</span></div>
+            <div class="col-3"><span style="font-size: 1em">{{ result.update_at|date:'Y-m-d H:i' }}</span></div>
+        </div>
+        <div class="w-100"></div>
+        {% endfor %}
+    {% endif %}
+    </form>
+    <!--頁碼實現-->
+    <ul class="pagination">
+        <li class="page-item">
+        <!--判斷是否有上一頁-->
+        {% if page_results.has_previous %}
+            <a class="page-link" href="?page={{ page_results.previous_page_number }}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span></a>
+        {% else %}
+            <span class="page-link" aria-hidden="true">&laquo;</span>
+        {% endif %}
+        </li>
+        {% for page_num in page_results.paginator.page_range%}
+        <li class="page-item"><a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a></li>
+        {% endfor %}
+        <!--是否有下一頁 -->
+        <li class="page-item">
+        <!--判斷是否有上一頁-->
+        {% if page_results.has_next %}
+            <a class="page-link" href="?page={{ page_results.next_page_number }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        {% else %}
+            <span class="page-link" aria-hidden="true">&raquo;</span>
+        {% endif %}
+        </li>
+    </ul>
+</div>
+{% endblock %}

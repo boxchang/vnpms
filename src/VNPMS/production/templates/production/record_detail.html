@@ -1,0 +1,31 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+
+{% endblock ready %}
+{% block js %}
+<script>
+function record2_submit() {
+    $("#hid_sap_emp_no").val($("#id_sap_emp_no").val());
+}
+</script>
+{% endblock js %}
+{% block content %}
+    <div class="row pt-3">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <form action="{% url 'prod_record_detail' %}" method="POST">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
+            <form id="record2_form" method='POST' action='/production/record2/'>
+            {{ html|safe }}
+            </form>
+
+        </div>
+        <div class="col-1"></div>
+    </div>
+
+{% endblock %}

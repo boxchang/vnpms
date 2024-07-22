@@ -1,0 +1,130 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load static %}
+{% load i18n %}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            {% if problem.belong_to_type.short_name == 'R' %}
+                <a href="/requests/detail/{{ problem.belong_to }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+            {% elif problem.belong_to_type.short_name == 'B' %}
+                <a href="/bugs/detail/{{ problem.belong_to }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+            {% elif problem.belong_to_type.short_name == 'O' %}
+                <a href="/projects/manage/{{ problem.project.id }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
+            {% endif %}
+            <div class="ml-md-auto">
+                <a class="btn btn-warning btn-sm" href="{% url 'problem_edit' pk %}?p={{ problem.project.pk }}" role="button"><i class="far fa-edit"></i>{% trans "problem_edit" %}</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'problem_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>{% trans "problem_delete" %}</a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <h1 class="font-weight-bold pt-3 pl-3">{{ problem.title }}&nbsp&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ problem.problem_no }}</span></small></h1>
+        <div class="col-md-12">
+                <table class="table table-bordered table-sm col-12">
+                    <tr>
+                        <td class="text-center align-middle table-dark">{% trans "project_belong" %}：</td>
+                        <td class="text-center align-middle">{{ problem.project }}</td>
+                        <td class="text-center align-middle table-dark">問題類型：</td>
+                        <td class="text-center align-middle">{{ problem.problem_type }}</td>
+                        <td class="text-center align-middle table-dark">問題狀態：</td>
+                        <td class="text-center align-middle">{{ problem.problem_status }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "owner" %}：</td>
+                        <td class="text-center align-middle">{{ problem.create_by }}</td>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "create_at" %}：</td>
+                        <td class="text-center align-middle">{{ problem.create_at|date:"Y-m-d H:i:s" }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "update_at" %}：</td>
+                        <td class="text-center align-middle">{{ problem.update_at|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                </table>
+                {% if files %}
+                <table class="table table-bordered table-sm col-12">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width:10%">
+                                #
+                            </th>
+                            <th style="width:70%">
+                                {% trans "desc" %}
+                            </th>
+                            <th style="width:10%;text-align: center;">
+                                {% trans "attachment" %}
+                            </th>
+                            <th style="width:10%;text-align: center;">
+                                {% trans "Delete" %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in files %}
+                        <tr>
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+                            <td>
+                                {{ file.description }}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ file.files.url }}"><i class="fas fa-file-download fa-2x text-info"></i></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'request_file_delete' file.pk %}?q={{ pk }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times fa-2x text-info"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                {% endif %}
+                <table class="table table-bordered table-sm col-12">
+                    <tr>
+                        <td style="padding: .7rem;font-size: 1.2em;">
+                            {{ problem.desc|safe }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        <div class="col-12">
+                {% for reply in problem_replys %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-5 text-left">
+                                    {{ reply.create_at }}
+                                </div>
+                                <div class="col-5 text-right">
+                                    {{ reply.create_by }}
+                                </div>
+                                <div class="col-2 text-right">
+                                    <a class="btn btn-warning btn-sm" href="{% url 'problem_reply_delete' reply.pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>刪除回覆</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text p-2">{{ reply.comment|safe }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        <div class="col-12 text-center">
+                <form action="{% url 'problem_reply_create' pk %}" method="post">
+                {% csrf_token %}
+                {% crispy problem_reply_form %}
+                    <button type="submit" class="btn btn-warning pl-5 pr-5" id="send">Reply</button>
+                </form>
+        </div>
+    </div>
+</div>
+<script src="{% static 'highlight\highlight.pack.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'highlight\styles\default.css' %}">
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+<style>
+.django-ckeditor-widget {
+width: 100%;
+}
+</style>

@@ -1,0 +1,20 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% load i18n %}
+{% block title %}
+    {% trans "problem_index" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'problem_page' pk=problem.project.pk %}">{{ problem.project.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ problem.title }}</li>
+{% endblock %}
+
+
+{% block content %}
+{% include 'problems/problem_base.html' %}
+{% endblock %}

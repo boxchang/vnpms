@@ -1,0 +1,40 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="p-3 table-responsive" style="height:700px; overflow:auto;background-color: #FFFFFF;">
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th width="5%" style="text-align: center">單號</th>
+                <th width="10%" style="text-align: center">申請日期</th>
+                <th width="15%" style="text-align: center">申請部門</th>
+                <th width="10%" style="text-align: center">申請人</th>
+                <th width="25%" style="text-align: center">原因</th>
+                <th width="10%" style="text-align: center">狀態</th>
+                <th width="10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if list %}
+            {% for data in list %}
+                <tr>
+                    <td style="text-align: center">{{ data.form_no }}</td>
+                    <td style="text-align: center">{{ data.apply_date }}</td>
+                    <td style="text-align: center">{{ data.unit }}</td>
+                    <td style="text-align: center">{{ data.requester }}</td>
+                    <td style="text-align: left">{{ data.reason }}</td>
+                    <td style="text-align: center">{{ data.status }}</td>
+                    <td style="text-align: center"><a href="{% url 'inv_detail' data.form_no %}" class="btn btn-warning">請購明細</a></td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="7" align="center">無簽核單據</td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block js %}
+
+{% endblock js %}

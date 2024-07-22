@@ -1,0 +1,53 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active" aria-current="page">RequestList</li>
+{% endblock %}
+{% block content %}
+<table class="table table-sm table-bordered table-light table-striped table-hover mb-3">
+    <thead>
+    <tr class="text-md-center align-middle">
+        <th width="10%">#需求編號</th>
+        <th width="10%">標題</th>
+        <th width="10%">優先等級</th>
+        <th width="10%">狀態</th>
+        <th width="10%">負責人</th>
+        <th width="10%">預計開始時間</th>
+        <th width="10%">預計完成時間</th>
+        <th width="10%">完成度</th>
+        <th width="10%">子需求</th>
+        <th width="10%">問題</th>
+        <th width="60"></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for request in requests %}
+        <tr class="text-md-center align-middle">
+            <td><a href="{% url 'request_detail' request.pk %}">{{ request.request_no }}</a></td>
+            <td>{{ request.title }}</td>
+            <td>{{ request.level }}</td>
+            <td>{{ request.status }}</td>
+            <td>{{ request.owner }}</td>
+            <td>{{ request.start_date|date:"Y-m-d" }}</td>
+            <td class="text-md-left">{{ request.due_date|date:"Y-m-d" }}</td>
+            <td class="text-md-left">{{ request.process_rate }}</td>
+            <td class="text-md-left">{{ request.sub_num }}</td>
+            <td class="text-md-left">{{ request.problem_num }}</td>
+            <td>
+                <a href="#" class="text-secondary btn-edit" data-key="{{ request.pk }}" data-toggle="modal"
+                   data-target="#modal-change"><i class="fas fa-pen-square"></i></a>&nbsp;
+                <a href="#" class="text-secondary btn-del" data-key="{{ request.pk }}"><i
+                        class="fas fa-minus-square"></i></a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock js %}

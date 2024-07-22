@@ -1,0 +1,102 @@
+{% load crispy_forms_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Condition</title>
+    <link rel="stylesheet" href="{% static 'jquery-ui\jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.1.3\css\bootstrap.min.css' %}">
+    <script src="{% static 'base\js\func.js' %}"></script>
+    <script src="{% static 'base\js\umd\popper.js' %}"></script>
+    <script src="{% static 'jquery\jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'jquery-ui\jquery-ui.min.js' %}"></script>
+    <script src="{% static 'bootstrap-4.1.3\js\bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'fontawesome-5.4.2\css\all.css' %}">
+    <script>
+        changeSelect = function(category_id, item_type)
+        {
+            $.get('/stock/typeapi/'+category_id, function (data){
+                $.each(data, function(index, item){
+                    item_type.append('<option value="' + item.id + '">' + item.type_name + '</option>')
+                })
+            })
+        }
+
+        var list = [];
+
+        //新增品項
+        return_item = function(item_code) {
+            window.opener.return_item(item_code);
+            window.close();
+        }
+
+        //Ready
+        $(function (){
+            category = $('#id_category');
+            item_type = $('#id_type');
+
+            changeSelect(0, item_type);
+
+            category.change(function() {
+                $("#button-id-search").click();
+                item_type.empty().append('<option value="">---------</option>');
+                changeSelect(this.value, item_type)
+            })
+
+            item_type.change(function() {
+                $("#button-id-search").click();
+            })
+
+            //物品清單
+            $("#button-id-search").click(function() {
+                var tmp_table = "<table class=\"table\"><tr><th width='70%'>品名&規格</th><th width='20%'>單位</th><th width='10%'></th></tr>{0}</table>";
+                var tmp_item = "<tr><td><a href=\"#\" onclick=\"open_window('/media/{0}')\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
+                var tmp_btn = "<button type='button' class='btn btn-info' onclick=\"return_item('{0}', '{1}')\">選取</button>";
+                var temp="";
+                var items="";
+                var add_btn="";
+                category_id = $("#id_category").val();
+                type_id = $("#id_type").val();
+                keyword = $("#id_keyword").val();
+                $("#search_result").html(""); //初始化
+
+                if(category_id==""){
+                    alert("必須選擇物品類別");
+                    return false;
+                }
+
+                $.ajax({
+                    url: '{% url 'stock_catogory_itemapi' %}', type: 'post',
+                    dataType: 'json',
+                    data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "category_id": category_id, "type_id": type_id, "keyword": keyword},
+                    success: function(data) {
+                        //取得種類清單
+                        $("#search_result").html();
+                        $.each(data, function(index, item){
+                            add_btn = String.format(tmp_btn, item.item_code);
+                            temp = String.format(tmp_item, item.pic, item.spec, item.unit, add_btn);
+                            items = items + temp;
+                        })
+                        $("#search_result").append(String.format(tmp_table, items));
+                    }
+                });
+
+            })
+
+            $("#id_keyword").on('keypress', function(e) {
+                if(e.which==13) {
+                    $("#button-id-search").click();
+                }
+                return false;
+            })
+        })
+</script>
+</head>
+<body>
+<div class="p-3">
+    {% crispy search_form %}
+    <div id="search_result"></div>
+</div>
+</body>
+</html>

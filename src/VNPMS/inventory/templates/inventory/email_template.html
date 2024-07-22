@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Noah - Inventory</title>
+    <style type="text/css">
+
+    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        if("{{ action }}"=="reject"){
+            alert("已退單成功");
+        }
+
+        if("{{ action }}"=="agree"){
+            alert("已簽核成功");
+        }
+
+        if("{{ action }}"=="done"){
+            alert("該單據先前已完成簽核");
+        }
+
+        if("{{ action }}"=="cancel"){
+            alert("該單據開單者已取消");
+        }
+    </script>
+</head>
+<body>
+    <div style="padding:20px;text-align:center;font-size:1.1em;">請領資料</div>
+    <table width="100%" border="1">
+        <tr>
+            <td style="text-align:right;">申請日期：</td>
+            <td style="text-align:center;color: blue;">{{ form.apply_date }}</td>
+            <td style="text-align:right;">狀態：</td>
+            <td style="text-align:center;color: blue;">{{ form.status }}</td>
+            <td style="text-align:right;">簽核者：</td>
+            <td style="text-align:center;color: blue;">{{ form.requester.manager|default:'' }}</td>
+        </tr>
+        <tr>
+            <td style="text-align:right;">申請部門：</td>
+            <td style="text-align:center;color: blue;">{{ form.unit }}</td>
+            <td style="text-align:right;">申請者：</td>
+            <td style="text-align:center;color: blue;">{{ form.requester }}</td>
+            <td style="text-align:right;">分機：</td>
+            <td style="text-align:center;color: blue;">{{ form.ext_number }}</td>
+        </tr>
+        <tr>
+            <td style="text-align:right;">申請原因：</td>
+            <td style="text-align:center;color: blue;">{{ form.reason }}</td>
+        </tr>
+    </table>
+    <br />
+    <br />
+    <table width="100%" border="1">
+        <thead>
+            <tr>
+                <th>物品類別</th>
+                <th>品名</th>
+                <th>數量</th>
+                <th>單位</th>
+                <th>備註</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in form.applied_form_item.all %}
+                <tr>
+                    <td style="text-align:center;color: blue;">{{ item.category }}</td>
+                    <td style="text-align:center;color: blue;">{{ item.spec }}</td>
+                    <td style="text-align:center;color: blue;">{{ item.qty }}</td>
+                    <td style="text-align:center;color: blue;">{{ item.unit }}</td>
+                    <td>{{ item.comment|default:'' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br />
+    <br />
+    {% if files %}
+    <table width="100%" border="1">
+        <thead>
+            <tr>
+                <th style="width:10%">#</th>
+                <th style="width:40%;text-align: left;">附件</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for file in files %}
+            <tr>
+                <td class="text-center">
+                    附件{{ forloop.counter }}
+                </td>
+                <td><a href="http://10.96.101.11:8000{{ file.files.url }}" target="_blank">{{ file.files.filename }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if action == "email" %}
+    <table width="100%">
+        <tr>
+            <td style="padding: 30px;text-align: center;">
+                <a href="http://10.96.101.11:8000/inventory/mail_agree/{{ key }}" class="btn btn-info" style="color:blue;">同意</a>
+            </td>
+            <td style="padding: 30px;text-align: center;">
+                <a href="http://10.96.101.11:8000/inventory/mail_reject/{{ key }}" class="btn btn-danger" style="color:red;">退單</a>
+            </td>
+        </tr>
+    </table>
+    {% endif %}
+    {% if hists %}
+    <div style="padding:20px;text-align:center;font-size:1.1em;">請領歷史紀錄 History</div>
+    <table width="100%" border="1">
+        <tr>
+            <th style="width: 10%;text-align: center;">申請日期</th>
+            <th style="width: 45%">品名</th>
+            <th style="width: 7%;text-align: center;">數量</th>
+            <th style="width: 7%;text-align: center;">發放數量</th>
+        </tr>
+        {% for hist in hists %}
+            {% for item in hist.applied_form_item.all %}
+            <tr>
+                <td style="text-align: center">{{ hist.apply_date }}</td>
+                <td style="text-align: center">{{ item.spec }}</td>
+                <td style="text-align: center">{{ item.qty }}</td>
+                <td style="text-align: center">{{ item.received_qty }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+    {% endif %}
+</body>
+</html>

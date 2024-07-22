@@ -1,0 +1,101 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+AMS Search
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+            <a href="javascript:history.back()" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>&nbsp;
+            <a href="{% url 'assets_main' %}" class="btn btn-warning"><i class="fas fa-home fa-1x"></i></a>&nbsp;
+            <a href="{% url 'assets_chart' %}" class="btn btn-warning"><i class="fas fa-signal fa-1x"></i></a>&nbsp;
+            <a href="{% url 'export_assets_xls' %}" class="btn btn-warning" target="_blank">EXCEL</a>&nbsp;
+
+        </div>
+        {% if user.is_authenticated %}
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th style="width:9%;">標籤編號</th>
+            <th style="width:6%;">資產類別</th>
+            <th style="width:7%;">資產種類</th>
+            <th style="width:5%;">品牌</th>
+            <th style="width:4%;">型號</th>
+            <th style="width:4%;">地區</th>
+            <th style="width:8%;">負責單位</th>
+            <th style="width:8%;">保管單位</th>
+            <th style="width:7%;">保管人姓名</th>
+            <th style="width:8%;">放置地點</th>
+            <th style="width:7%;">描述</th>
+            {% if show_sap_no %}
+            <th style="width:7%;">SAP編號</th>
+            {% endif %}
+            <th style="width:5%;">狀態</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in page_results %}
+            <tr>
+                <td><a href="/assets/detail/{{ asset.id }}/">{{ asset.label_no }}</a></td>
+                <td>{{ asset.category }}</td>
+                <td>{{ asset.type }}</td>
+                <td>{{ asset.brand }}</td>
+                <td>{{ asset.model }}</td>
+                <td>{{ asset.area }}</td>
+                <td>{{ asset.owner_unit }}</td>
+                <td>{{ asset.keeper_unit|default:"" }}</td>
+                <td>{{ asset.keeper_name }}</td>
+                <td>{{ asset.location }}</td>
+                <td>{{ asset.desc }}</td>
+                {% if show_sap_no %}
+                <td>{{ asset.sap_asset_no|default:"" }}</td>
+                {% endif %}
+                <td>{{ asset.status }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!--頁碼實現-->
+<ul class="pagination">
+    <li class="page-item">
+    <!--判斷是否有上一頁-->
+    {% if page_results.has_previous %}
+        <a class="page-link" href="?page={{ page_results.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span></a>
+    {% else %}
+        <span class="page-link" aria-hidden="true">&laquo;</span>
+    {% endif %}
+    </li>
+    {% for page_num in page_results.paginator.page_range%}
+    <li class="page-item"><a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a></li>
+    {% endfor %}
+    <!--是否有下一頁 -->
+    <li class="page-item">
+    <!--判斷是否有上一頁-->
+    {% if page_results.has_next %}
+        <a class="page-link" href="?page={{ page_results.next_page_number }}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    {% else %}
+        <span class="page-link" aria-hidden="true">&raquo;</span>
+    {% endif %}
+    </li>
+</ul>
+<span>總筆數：{{ row_count }}</span>
+{% endblock %}

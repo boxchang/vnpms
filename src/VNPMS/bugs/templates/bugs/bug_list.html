@@ -1,0 +1,41 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% block title %}Bug列表{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active" aria-current="page">BugList</li>
+{% endblock %}
+{% block content %}
+<table class="table table-sm table-bordered table-light table-striped table-hover mb-3">
+    <thead>
+    <tr class="text-md-center align-middle">
+        <th width="10%">#Bug編號</th>
+        <th width="10%">標題</th>
+        <th width="10%">狀態</th>
+        <th width="10%">嚴重程度</th>
+        <th width="10%">負責人</th>
+        <th width="10%">建立人</th>
+        <th width="10%">建立時間</th>
+        <th width="10%">更新人</th>
+        <th width="10%">更新時間</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for bug in bugs %}
+    <tr class="text-md-center align-middle">
+        <td><a href="{% url 'bug_detail' bug.pk %}">{{ bug.bug_no }}</a></td>
+        <td>{{ bug.title }}</td>
+        <td>{{ bug.status }}</td>
+        <td>{{ bug.level }}</td>
+        <td>{{ bug.owner }}</td>
+        <td>{{ bug.create_by }}</td>
+        <td>{{ bug.create_at|date:"Y-m-d" }}</td>
+        <td>{{ bug.update_by }}</td>
+        <td>{{ bug.update_at|date:"Y-m-d" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

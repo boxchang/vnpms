@@ -1,0 +1,44 @@
+{% extends 'bases/base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Help Desk</title>
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+
+<a href="{% url 'helpdesk_create' %}" role="button" data-toggle="tooltip" data-placement="bottom" title="Create">Create</a>
+<div class="container">
+    <form method="post" action="{% url 'search' %}">
+    {% csrf_token %}
+    <div class="row align-items-center" style="height:600px;">
+      <div class="col-2">
+
+      </div>
+
+      <div class="col-8 input-group">
+                <div class="col-xs-2">
+                    <select id="help_type" name="help_type" class="form-control">
+                        <option value="">ALL</option>
+                        {% for helptype in helptypes %}
+                        <option value="{{ helptype.tid }}">{{ helptype.type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input class="form-control" type="text" placeholder="keyword" name="keywords">
+                <button type="submit" class="btn btn-warning">Search</button>
+
+      </div>
+
+      <div class="col-2">
+
+      </div>
+    </div>
+    </form>
+</div>
+{% endblock %}

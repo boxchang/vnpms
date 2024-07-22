@@ -1,0 +1,46 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block title %} {% trans "project_setting" %} {% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6" style="font-size: 1.5em;">
+            <div class="card">
+                <div class="card-header table-dark bg-dark">
+                    {% trans "project_setting" %}
+                </div>
+                <div class="card-body bg-warning">
+                    {% trans "project_setting_desc" %}說明：設定登入後預設專案
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <div>{% trans "upload_selfie" %}</div>
+                        <div class="row">
+                            <div id="div_id_files" class="form-group col-2">
+                                <input name="shot" accept="image/*" class="clearablefileinput" id="id_files" type="file">
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save fa-fw" aria-hidden="true"></i> Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

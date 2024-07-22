@@ -1,0 +1,100 @@
+{% extends 'stock/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block title %}
+異動紀錄
+{% endblock %}
+{% block css%}
+
+{% endblock css %}
+{% block js %}
+<script>
+$(function (){
+    storage_obj = $("#id_storage")
+    location_obj = $("#id_location");
+    bin_obj = $("#id_bin");
+    changeStorageSelect = function(storage_code, obj)
+    {
+        $.get('/stock/location_api/'+storage_code, function (data){
+            $.each(data, function(index, item){
+                obj.append('<option value="' + item.location_code + '">' + item.location_name + '</option>')
+            })
+        })
+    }
+
+    changeLocationSelect = function(location_code, obj)
+    {
+        $.get('/stock/bin_api/'+location_code, function (data){
+            $.each(data, function(index, item){
+                obj.append('<option value="' + item.bin_code + '">' + item.bin_name + '</option>')
+            })
+        })
+    }
+
+    storage_obj.change(function() {
+        location_obj.empty().append("<option value=''>---------</option>");
+        changeStorageSelect(this.value, location_obj)
+    })
+
+    location_obj.change(function() {
+        bin_obj.empty().append("<option value=''>---------</option>");
+        changeLocationSelect(this.value, bin_obj)
+    })
+})
+</script>
+{% endblock js %}
+{% block ready %}
+$("#search_tb").bootstrapTable('destroy').bootstrapTable({
+    height: 600,
+    fixedColumns: true,
+    fixedNumber: 1,
+    showToggle: false,
+});
+{% endblock ready %}
+{% block content %}
+<div class="p-3">
+    <form action="{% url 'recent_history' %}" method="post" class="form-group font-weight-bold align-middle" id="import_form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+    {% if hists %}
+    <div class="table-responsive">
+        <table id="search_tb">
+            <thead>
+                <tr>
+                    <th class="text-center">儲格</th>
+                    <th class="text-center">料號</th>
+                    <th class="text-center">物料說明</th>
+                    <th class="text-center">MVT</th>
+                    <th class="text-center">說明</th>
+                    <th class="text-center">+</th>
+                    <th class="text-center">-</th>
+                    <th class="text-center">數量</th>
+                    <th class="text-center">單位</th>
+                    <th class="text-center">異動人員</th>
+                    <th class="text-center">異動日期</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hist in hists %}
+                    <tr>
+                        <td style="text-align: center;">{{ hist.bin.bin_name }}</td>
+                        <td style="text-align: center;">{{ hist.item.item_code }}</td>
+                        <td style="text-align: center;">{{ hist.item.spec }}</td>
+                        <td style="text-align: center;">{{ hist.mvt }}</td>
+                        <td style="text-align: center;">{{ hist.desc }}</td>
+                        <td style="text-align: right;">+ {{ hist.plus_qty }}</td>
+                        <td style="text-align: right;">- {{ hist.minus_qty }}</td>
+                        <td style="text-align: right;">{{ hist.remain_qty }}</td>
+                        <td style="text-align: center;">{{ hist.item.unit }}</td>
+                        <td style="text-align: center;">{{ hist.create_by }}</td>
+                        <td style="text-align: center;">{{ hist.create_at|date:"Y/m/d H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

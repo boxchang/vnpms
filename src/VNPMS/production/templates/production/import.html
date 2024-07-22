@@ -1,0 +1,110 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $("#import_form").submit(function(e) {
+            $("body").loading();
+            if($("#send").text()=="Preview")
+            {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'prod_import_preview' %}",
+                    data: formData,
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                    },
+                    success: function(data) {
+                        $("#preview").html(data);
+                        $("#send").text("Save");
+                        $("body").loading("stop");
+                        console.log(data)
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
+            }
+            else {
+                $("#preview").html("");
+            }
+        });
+    });
+
+</script>
+{% endblock js %}
+{% block content %}
+
+<div class="pt-3">
+    <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="import-tab" data-toggle="pill" href="#import" role="tab" aria-controls="import" aria-selected="true">匯入資料</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="upload-record-tab" data-toggle="pill" href="#upload-record" role="tab" aria-controls="upload-record" aria-selected="false">匯入紀錄</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="import" role="tabpanel" aria-labelledby="import-tab">
+            <div style="background-color: #EEEEEE;border-radius: .3rem;padding: 1rem 1rem;">
+                <h1 class="display-5">匯入說明</h1>
+                <p class="lead">※系統限制工單狀態有PRT才能匯入</p>
+                <p class="lead">※工單可以重覆上傳，以最後一次上傳為主</p>
+            </div>
+            <div class="p-4">
+            <form action="" method="post" class="form-group font-weight-bold align-middle" id="import_form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div>請選擇Template檔案(*.xlsx)
+                        <a href="{% static "production/coois.xlsx" %}" target="_blank">下載範本檔</a>
+                    </div>
+                    <div class="row">
+                        <div id="div_id_files" class="form-group">
+                            <input name="files1" accept=".xls,.xlsx" class="clearablefileinput" id="id_files" type="file">
+                            <button type="submit" class="btn btn-primary" id="send">Preview</button>
+                        </div>
+                    </div>
+                    <div class="row" id="preview">
+                        {{ preview | safe }}
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="upload-record" role="tabpanel" aria-labelledby="upload-record-tab">
+            <div class="p-3">
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th width="20%">上傳時間</th>
+                        <th width="20%">上傳者</th>
+                        <th width="30%">檔案名稱</th>
+                        <th width="20%">下載</th>
+                    </tr>
+                    {% for coois in cooises %}
+                    <tr>
+                        <td>{{ coois.create_at }}</td>
+                        <td>{{ coois.create_by }}</td>
+                        <td>{{ coois.file_name }}</td>
+                        <td><a href="{{ coois.file_url }}" class="btn btn-light">下載</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

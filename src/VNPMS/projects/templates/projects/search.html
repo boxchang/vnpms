@@ -1,0 +1,46 @@
+{% extends 'bases/menu_base.html' %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block content %}
+<div style="padding-top:50px"></div>
+<div class="alert alert-warning" role="alert">
+    {% blocktrans %}There_are_{{ results_count }}_results.{% endblocktrans %}
+</div>
+{% if results %}
+<table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">PROJECT</th>
+        <th scope="col">FORM NO.</th>
+        <th scope="col">TYPE</th>
+        <th scope="col">TITLE</th>
+        <th scope="col">UPDATER</th>
+        <th scope="col">UPDATER</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for result in results %}
+    <tr>
+        <td scope="row">{{ forloop.counter }}</td>
+        <td>{{ result.project }}</td>
+        <td>
+            {% if result.type == 'R' %}
+            <a href="{% url 'request_detail' result.pk %}">{{ result.no }}</a>
+            {% elif result.type == 'P' %}
+            <a href="{% url 'problem_detail' result.pk %}">{{ result.no }}</a>
+            {% else %}
+            <a href="{% url 'bug_detail' result.pk %}">{{ result.no }}</a>
+            {% endif %}
+        </td>
+        <td>{{ result.type }}</td>
+        <td>{{ result.title }}</td>
+        <td>{{ result.update_by }}</td>
+        <td>{{ result.update_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock content %}

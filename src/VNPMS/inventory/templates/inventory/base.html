@@ -1,0 +1,62 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+Inventory
+{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'inv_apply' %}" class="btn btn-info">開立請領</a>
+            <a href="{% url 'inv_list' %}" class="btn btn-info">相關單據</a>
+            <a href="{% url 'inv_approve' %}" class="btn btn-info">待簽核</a>
+            {% if perms.users.perm_misc_apply %}
+            <a href="{% url 'inv_statistic' %}" class="btn btn-info">待請購</a>
+            <div class="btn-group">
+                <button class="btn btn-info dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                系統設定
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'inv_setting' %}">額外退件通知人</a></li>
+                    <li><a class="dropdown-item" href="/admin/inventory/formstatus/" target="_blank">狀態編輯</a></li>
+                </ul>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-info dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                基本資料
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="{% url 'item_create' %}">料號新增</a></li>
+                    <li><a class="dropdown-item" href="{% url 'item_list' %}">料號編輯</a></li>
+                    <li><a class="dropdown-item" href="/admin/inventory/itemfamily/" target="_blank">編輯大類</a></li>
+                    <li><a class="dropdown-item" href="/admin/inventory/itemcategory/" target="_blank">編輯中類</a></li>
+                    <li><a class="dropdown-item" href="/admin/inventory/itemtype/" target="_blank">編輯小類</a></li>
+                    <li><a class="dropdown-item" href="{% url 'inv_import' %}">匯入料號</a></li>
+                    <li><a class="dropdown-item" href="{% url 'template_edit' %}">編輯範本</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% block content %}
+{% endblock content %}
+{% endblock %}
+{% block js %}
+
+{% endblock js %}

@@ -1,0 +1,24 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="row p-3">
+    <div class="col">
+        <form method="post" action="{% url 'template_edit' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% crispy attach_form %}
+            <hr />
+            <div class="col-8 text-center">
+                <input type="submit" value="確認" class='btn btn-info' />
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+if("{{ result }}" == "DONE") {
+    alert("更換完成");
+}
+</script>
+{% endblock js %}

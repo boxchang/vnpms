@@ -1,0 +1,28 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+
+{% endblock ready %}
+{% block css %}
+
+{% endblock css %}
+{% block js %}
+
+{% endblock js %}
+{% block content %}
+<div class="card">
+    <div class="card-header pb-1 pt-1">
+        <div class="row">
+            查詢條件
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="{% url 'record_export' %}" method="post" class="form-group font-weight-bold align-middle" id="request_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% crispy form %}
+        </form>
+    </div>
+</div>
+{% endblock %}

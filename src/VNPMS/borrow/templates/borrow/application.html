@@ -1,0 +1,204 @@
+{% extends 'borrow/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    資訊借物申請單
+{% endblock %}
+{% block sub_container %}
+<div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+        <div style="text-align: center;font-size: 1.2em">資訊設備借用申請單</div>
+        <hr />
+        <form method="post" action="{% url 'apply' %}">
+            {% csrf_token %}
+            <input type="hidden" name="hidBorrowList" id="hidBorrowList" value="" />
+            <div class="row">
+                <div class="col-6">
+                    <div id="div_id_apply_dept" class="form-group">
+                        <label for="id_apply_dept" class="requiredField">
+                            申請部門<span class="asteriskField">*</span>
+                        </label>
+                        <select name="apply_dept" class="select custom-select" id="id_apply_dept" required="" onchange="dept_change();">
+                            {{ dept_options | safe }}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div id="div_id_apply_user" class="form-group">
+                        <label for="id_apply_user" class="requiredField">
+                            申請人<span class="asteriskField">*</span>
+                        </label>
+                        <select name="apply_user" class="select custom-select" id="id_apply_user" required="">
+                            <option value="" selected>---------</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% crispy form %}
+            <hr />
+            <div class="row">
+                <div class="col-5">
+                    <div id="div_id_asset_type" class="form-group">
+                        <label for="id_asset_type">
+                            物品類別
+                        </label>
+                        <select name="asset_type" class="select custom-select" id="id_asset_type" onchange="asset_type_change();">
+                            {{ asset_type_options | safe }}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-2"></div>
+                <div class="col-5">
+                    <div id="div_id_asset" class="form-group">
+                        <label for="id_asset">
+                            標籤編號
+                        </label>
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" name="asset_no" class="textinput textInput form-control" id="id_asset_no">
+                            </div>
+                            <div class="col">
+                                <input class="btn btn-success" type="button" onclick="asset_no_click()" value="放入清單" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-5">
+                    <div id="div_id_asset_list" class="form-group">
+                        <label for="id_asset_list">
+                            請選擇要借的物品
+                        </label>
+                        <select id="asset_list" class="select custom-select" multiple aria-label="multiple select" style="height: 300px">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-2 pt-4" style="text-align: center">
+                    <input class="btn btn-success mt-3" type="button" value="=>" style="width: 100px" onclick="move1()" /><br />
+                    <input class="btn btn-success mt-3" type="button" value="<=" style="width: 100px" onclick="move2()" /><br />
+                    <input class="btn btn-success mt-3" type="button" value="<<" style="width: 100px" onclick="clean()" />
+                </div>
+                <div class="col-5">
+                    <div id="div_id_borrow_list" class="form-group">
+                        <label for="id_borrow_list">
+                            借物清單
+                        </label>
+                        <select id="borrow_list" name="borrow_list" class="select custom-select" multiple aria-label="multiple select" style="height: 300px">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="pb-4" style="text-align: center;">
+              <input class="btn btn-success" type="submit" value="借出" />
+            </div>
+        </form>
+    </div>
+    <div class="col-1"></div>
+</div>
+{% endblock sub_container %}
+
+{% block js %}
+<script>
+    function asset_no_click() {
+        $.ajax({
+            url: '{% url 'find_asset_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "asset_no": $("#id_asset_no").val()},
+            success: function(data) {
+                obj = eval(data);
+                const select_2 = document.getElementById("borrow_list");
+                let new_option = document.createElement('option');
+                new_option.value = obj[0].value
+                new_option.innerHTML = obj[0].name;
+                select_2.appendChild(new_option);
+            }
+        });
+    }
+
+
+    function dept_change() {
+        $.ajax({
+            url: '{% url 'get_deptuser_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "unit": $("#id_apply_dept :selected").val()},
+            success: function(data) {
+                $("#id_apply_user").html(data);
+            }
+        });
+    }
+
+    function asset_type_change() {
+        $.ajax({
+            url: '{% url 'get_asset_api' %}', type: 'post',
+            dataType: 'json',
+            data: {"csrfmiddlewaretoken": "{{ csrf_token }}", "typeId": $("#id_asset_type :selected").val()},
+            success: function(data) {
+                $("#asset_list").html(data);
+            }
+        });
+    }
+
+    function move1() {
+        const select_1 = document.getElementById("asset_list");
+        const select_2 = document.getElementById("borrow_list");
+
+        if(select_1.selectedIndex !== -1) {
+            const selected_option = select_1.options[select_1.selectedIndex];
+
+            let new_option = document.createElement('option');
+            new_option.value = selected_option.value
+            new_option.innerHTML = selected_option.innerHTML;
+            select_2.appendChild(new_option);
+
+            select_1.options.remove(select_1.selectedIndex)
+        }
+        updateList();
+
+    }
+
+    function move2(){
+        const select_1 = document.getElementById("asset_list");
+        const select_2 = document.getElementById("borrow_list");
+
+        if(select_2.selectedIndex !== -1) {
+            const selected_option = select_2.options[select_2.selectedIndex];
+
+            let new_option = document.createElement('option');
+            new_option.value = selected_option.value
+            new_option.innerHTML = selected_option.innerHTML;
+            select_1.appendChild(new_option);
+
+            select_2.options.remove(select_2.selectedIndex)
+        }
+        updateList();
+    }
+
+    function clean() {
+        $("#borrow_list").empty();
+        asset_type_change();
+        updateList();
+    }
+
+    function updateList() {
+        var x = document.getElementById('borrow_list');
+        var val = "";
+        for (var i = 0; i < x.length; i++) {
+            val +=x[i].value + ",";
+        }
+        document.getElementById('hidBorrowList').value = val;
+    }
+
+
+
+</script>
+
+{% endblock js %}
+{% block css %}
+<style type="text/css">
+#borrow_list {
+    background: #ffffe7;
+}
+</style>
+{% endblock css %}

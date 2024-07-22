@@ -1,0 +1,72 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+{% block title %}
+AMS Statistic
+{% endblock %}
+{% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock js %}
+{% block ready %}
+    $.get( "{% url 'chart_api' %}", function( results ) {
+        const ctx = document.getElementById('myChart');
+
+        const labels = results.types;
+        const data = {
+          labels: labels,
+          datasets: [{
+            axis: 'y',
+            label: '數量',
+            data: results.qty,
+            fill: false,
+            backgroundColor: [
+              'rgba(255, 159, 64, 0.2)',
+            ],
+            borderColor: [
+              'rgb(255, 159, 64)',
+            ],
+            borderWidth: 1
+          }]
+        };
+
+        const config = {
+          type: 'bar',
+          data,
+          options: {
+            indexAxis: 'y',
+          }
+        };
+
+        const stackedBar = new Chart(ctx, config);
+    });
+
+
+
+{% endblock ready %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+            <a href="javascript:history.back()" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>&nbsp;
+            <a href="{% url 'assets_main' %}" class="btn btn-warning"><i class="fas fa-home fa-1x"></i></a>&nbsp;
+            <a href="{% url 'assets_chart' %}" class="btn btn-warning"><i class="fas fa-signal fa-1x"></i></a>&nbsp;
+            <a href="{% url 'export_assets_xls' %}" class="btn btn-warning" target="_blank">EXCEL</a>&nbsp;
+        </div>
+        {% if user.is_authenticated %}
+        <div class="ml-md-auto">
+            <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+{% endblock %}

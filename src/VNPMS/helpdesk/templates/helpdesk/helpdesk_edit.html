@@ -1,0 +1,43 @@
+{% extends 'bases/base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% load i18n %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block container %}
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-10">
+      <div class="card">
+          <div class="card-header">
+          {% if form.instance.id %}
+            編輯
+          {% else %}
+            新增
+          {% endif %}
+          </div>
+          {% include "bases/attach_form.html" %}
+      </div>
+  </div>
+  <div class="col-md-1"></div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script src="/static/ckeditor/ckeditor-init.js" type="text/javascript"></script>
+<script src="/static/ckeditor/ckeditor/ckeditor.js" type="text/javascript"></script>
+<script>
+
+</script>
+{% endblock js %}
+
+{% block css %}
+<style>
+.django-ckeditor-widget {
+width: 100%;
+}
+</style>
+{% endblock %}

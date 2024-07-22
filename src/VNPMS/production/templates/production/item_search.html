@@ -1,0 +1,56 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+$("#id_wo_no").focus();
+{% endblock ready %}
+{% block js %}
+<script>
+    var wo = {
+        'info': function(wo_no) {
+          $("#wo_no").val(wo_no);
+          $("#wo_form").submit();
+        }
+    };
+
+</script>
+{% endblock js %}
+{% block content %}
+    <form id="wo_form" action="{% url 'prod_wo_detail' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="wo_no" id="wo_no">
+    </form>
+    <div class="row">
+        <div class="col">
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <form action="{% url 'prod_item_search' %}" method="POST">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
+            <table border="1" class='table table-bordered table-striped'>
+                <tr>
+                    <th>工單</th>
+                    <th>料號</th>
+                    <th>料號說明</th>
+                    <th>建立日期</th>
+                </tr>
+                {% for wo in wos %}
+                <tr onclick="wo.info('{{ wo.wo_no }}');" style="cursor: pointer;">
+                    <td>{{ wo.wo_no }}</td>
+                    <td>{{ wo.item_no }}</td>
+                    <td>{{ wo.spec }}</td>
+                    <td>{{ wo.create_at|date:'Y-m-d' }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="col-1"></div>
+    </div>
+
+{% endblock %}

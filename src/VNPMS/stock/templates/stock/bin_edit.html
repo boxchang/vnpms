@@ -1,0 +1,44 @@
+{% extends 'stock/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block js %}
+<script>
+function cancel() {
+    $("#cancel_form").submit();
+}
+
+$(document).ready(function() {
+    $("#save_form").submit(function(e) {
+        $("#id_location").prop('disabled', false);
+    });
+});
+</script>
+{% endblock js %}
+{% block content %}
+<form id="cancel_form" action="{% url 'bin_list' storage_code location_code %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" value="{{ location.location_code }}" name="pk" />
+</form>
+<div class="pt-3">
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <form id="save_form" action="{% url 'bin_save' %}" method="post">
+                {% csrf_token %}
+                {% crispy form %}
+                <div style="text-align: center" class="p-3">
+                    <input type="submit" value="儲存" class='btn btn-info' onclick="submit();" />
+                    <input type="hidden" value="{{ action }}" name="action" />
+                    <input type="hidden" value="{{ location_code }}" name="location_code" />
+                    <input type="button" class="btn btn-info" value="取消" onClick="cancel();">
+                </div>
+            </form>
+        </div>
+        <div class="col-1"></div>
+    </div>
+</div>
+{% endblock %}
+{% block menu %}
+<a href="{% url 'bin_list' storage_code location_code %}" class='btn btn-info'><i class="fas fa-arrow-left fa-1x"></i></a>
+{% endblock %}

@@ -1,0 +1,39 @@
+[
+  {
+    "model": "users.customuser",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$36000$QhDvfCnoslCz$0s3LqKeN+3rkiCGKUjLGtF+mQfTXjvtYX2+JgxfsuOM=",
+      "last_login": "2018-11-22T06:46:19.987Z",
+      "is_superuser": true,
+      "username": "box_chang",
+      "email": "b@ccc",
+      "first_name": "",
+      "last_name": "",
+      "mobile_number": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2018-11-22T01:28:17.300Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.customuser",
+    "fields": {
+      "password": "pbkdf2_sha256$36000$QvQ5UPDawCqc$UCxnBdCj1PcouglsPOy8i3qYDBHwW88tzpBUQ5PbtiE=",
+      "last_login": "2018-11-22T07:15:45.972Z",
+      "is_superuser": true,
+      "username": "nico",
+      "email": "n@ccc",
+      "first_name": "",
+      "last_name": "",
+      "mobile_number": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2018-11-22T07:15:45.972Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

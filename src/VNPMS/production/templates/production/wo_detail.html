@@ -1,0 +1,80 @@
+{% extends 'production/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block ready %}
+$("#id_wo_no").focus();
+{% endblock ready %}
+{% block js %}
+<script>
+
+</script>
+{% endblock js %}
+{% block content %}
+    <div class="row">
+        <div class="col">
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <form action="{% url 'prod_wo_detail' %}" method="POST">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
+            <div class="row p-3">
+                <div class="col-3">料號：{{ item_no }}</div>
+                <div class="col-9">料號說明：{{ spec }}</div>
+            </div>
+            <table border="1" class='table table-bordered table-striped'>
+                <tr>
+                    <th>工單</th>
+                    <th>加工順序</th>
+                    <th>作業代碼</th>
+                    <th>作業短文</th>
+                    <th>工單數量</th>
+                    <th>良品</th>
+                    <th>NG</th>
+                    <th>基礎數量</th>
+                    <th>標準機時</th>
+                    <th>實際機時(MIN)</th>
+                    <th>標準人時</th>
+                    <th>實際人時(MIN)</th>
+                </tr>
+                {% for step in steps %}
+                    {% for work_reocrd in step.work_records %}
+                        <tr style="background-color: white">
+                            <td colspan="2" style="text-align: right">{{ work_reocrd.comment|default:"" }}┏</td>
+                            <td style="text-align: center">{{ work_reocrd.record_dt }}</td>
+                            <td style="text-align: center">{{ work_reocrd.sap_emp_no }}</td>
+                            <td style="text-align: center">{{ work_reocrd.username }}</td>
+                            <td style="color: blue;font-weight:bold;text-align: right">{{ work_reocrd.good_qty }}</td>
+                            <td style="color: blue;font-weight:bold;text-align: right">{{ work_reocrd.ng_qty }}</td>
+                            <td colspan="2"></td>
+                            <td style="color: blue;font-weight:bold;text-align: right">{{ work_reocrd.mach_time }}</td>
+                            <td></td>
+                            <td style="color: blue;font-weight:bold;text-align: right">{{ work_reocrd.labor_time }}</td>
+                        </tr>
+                    {% endfor %}
+                <tr style="background-color: rgba(0,0,0,.05)">
+                    <td>{{ wo_no }}</td>
+                    <td>{{ step.step_no }}</td>
+                    <td>{{ step.step_code }}</td>
+                    <td>{{ step.step_name }}</td>
+                    <td style="text-align: right">{{ step.wo_qty }}</td>
+                    <td style="color: blue;font-weight:bold;text-align: right">{{ step.step_good_qty }}</td>
+                    <td style="color: blue;font-weight:bold;text-align: right">{{ step.step_ng_qty }}</td>
+                    <td style="text-align: right">{{ step.std_qty }}</td>
+                    <td style="text-align: right">{{ step.std_mach_time }}</td>
+                    <td style="color: blue;font-weight:bold;text-align: right">{{ step.step_mach_time }}</td>
+                    <td style="text-align: right">{{ step.std_labor_time }}</td>
+                    <td style="color: blue;font-weight:bold;text-align: right">{{ step.step_labor_time }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        <div class="col-1"></div>
+    </div>
+
+{% endblock %}
