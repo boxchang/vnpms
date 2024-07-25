@@ -13,7 +13,7 @@ class ProblemByPViewSet(ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         p_pk = self.kwargs['project_id']
-        exclude_list = Status.objects.filter(status_en__in=['Done', 'On-Going'])
+        exclude_list = Status.objects.filter(status_en__in=['Done', 'Cancel'])
         queryset = Problem.objects.filter(project=p_pk).exclude(problem_status__in=exclude_list)
 
         return queryset
