@@ -24,6 +24,15 @@ class ProblemForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.form_show_errors = True
+        self['desc'].initial = """
+        【Issue日期】<p \>
+        【反應者】<p \>
+        【問題描述】<p \>
+        【問題原因】<p \>
+        【Short-Term Solution】<p \>
+        【Long-Term Solution】<p \>
+        """
+
         self.helper.layout = Layout(
             Div(
                 Div('problem_type', css_class='col-md-3'),
