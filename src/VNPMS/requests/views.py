@@ -155,6 +155,8 @@ def request_history(request):
         _start_date = str(request.POST['start_date']).replace('/', '-')
         _due_date = str(request.POST['due_date']).replace('/', '-')
         requires = Request.objects.filter(project=project)
+        _due_date = datetime.strptime(_due_date, '%Y-%m-%d') + timedelta(days=1)
+
         if _status:
             requires = requires.filter(status=_status)
 
