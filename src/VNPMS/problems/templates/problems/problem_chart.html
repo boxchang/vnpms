@@ -21,7 +21,9 @@
             {% csrf_token %}
             {% crispy form %}
         </form>
-        <canvas id="paretoChart"></canvas>
+        <div style="width:70%;">
+            <canvas id="paretoChart"></canvas>
+        </div>
     </div>
 </div>
 {% endblock content %}
