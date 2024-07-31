@@ -193,7 +193,8 @@ def problem_chart_api(request):
         if start_date:
             start_date = datetime.datetime.strptime(start_date, "%Y-%m")
             _start_date = datetime.datetime(start_date.year, start_date.month, 1)
-            _last_date = datetime.datetime(start_date.year, start_date.month, calendar.monthrange(start_date.year, start_date.month)[1])
+            _last_date = datetime.datetime(start_date.year, start_date.month, calendar.monthrange(start_date.year, start_date.month)[1]) + timedelta(days=1)
+
             summary = summary.filter(create_at__gte=_start_date, create_at__lte=_last_date)
 
         if status:
