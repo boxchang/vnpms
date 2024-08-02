@@ -155,6 +155,7 @@ def problem_history(request):
     project = Project.objects.get(pk=p)
     if request.method == 'POST':
         _status = request.POST['status']
+        _problem_type = request.POST['problem_type']
         _start_date = str(request.POST['start_date']).replace('/', '-')
         _due_date = str(request.POST['due_date']).replace('/', '-')
 
@@ -168,6 +169,9 @@ def problem_history(request):
 
         if _start_date and _due_date:
             problems = problems.filter(create_at__gte=_start_date, create_at__lte=_due_date)
+
+        if _problem_type:
+            problems = problems.filter(problem_type=_problem_type)
 
         form = ProblemHistoryForm(request.POST)
     else:
