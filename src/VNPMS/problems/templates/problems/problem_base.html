@@ -38,6 +38,13 @@
                         <td class="text-center align-middle table-dark">{% trans "update_at" %}：</td>
                         <td class="text-center align-middle">{{ problem.update_at|date:"Y-m-d H:i:s" }}</td>
                     </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark">Issue Owner ：</td>
+                        <td class="text-center align-middle">{{ problem.issue_owner }}</td>
+                        <td class="text-center align-middle table-dark">Record Date ：</td>
+                        <td class="text-center align-middle">{{ problem.record_date }}</td>
+
+                    </tr>
                 </table>
                 {% if files %}
                 <table class="table table-bordered table-sm col-12">
