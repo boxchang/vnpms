@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^history', problem_history, name="problem_history"),
     url(r'^chart$', problem_chart, name="problem_chart"),
     url(r'^chart_api$', problem_chart_api, name="problem_chart_api"),
+    url(r'^chart_grid_api$', problem_chart_grid_api, name="problem_chart_grid_api"),
 ]

@@ -9,6 +9,7 @@ from bases.utils import *
 from bases.views import get_user_setting_pagenum
 from problems.forms import ProblemForm, ProblemReplyForm, ProblemHistoryForm, ProblemChartForm
 from problems.models import *
+from django.core.serializers import serialize
 
 @login_required
 def problem_create(request):
@@ -185,6 +186,24 @@ def problem_chart(request):
     project = Project.objects.get(pk=p)
     form = ProblemChartForm()
     return render(request, 'problems/problem_chart.html', locals())
+
+
+@login_required
+def problem_chart_grid_api(request):
+    if request.method == 'POST':
+        problem_type = request.POST['label']
+        start_date = request.POST['start_date']
+
+        start_date = datetime.datetime.strptime(start_date, "%Y-%m")
+        _start_date = datetime.datetime(start_date.year, start_date.month, 1)
+        _last_date = datetime.datetime(start_date.year, start_date.month,
+                                       calendar.monthrange(start_date.year, start_date.month)[1]) + timedelta(days=1)
+        problem_type = ProblemType.objects.get(type_name=problem_type)
+        results = Problem.objects.filter(create_at__gte=_start_date, create_at__lte=_last_date, problem_type=problem_type)
+
+        results_list = list(results.values())
+        return JsonResponse(results_list, safe=False)
+
 
 @login_required
 def problem_chart_api(request):

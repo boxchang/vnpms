@@ -113,7 +113,7 @@ class ProblemChartForm(forms.ModelForm):
         fields = ('status', 'start_date',)
 
     status = forms.ModelChoiceField(required=False, label=_(
-        'status'), queryset=Status.objects.all(), initial=1)
+        'status'), queryset=Status.objects.all(), initial=0)
     start_date = forms.DateField(label="建立日期(起)")
 
     def __init__(self, *args, submit_title='Submit', **kwargs):

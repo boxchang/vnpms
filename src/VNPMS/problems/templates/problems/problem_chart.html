@@ -21,20 +21,27 @@
             {% csrf_token %}
             {% crispy form %}
         </form>
-        <div style="width:70%;">
+        <div style="width:60%;">
             <canvas id="paretoChart"></canvas>
+        </div>
+        <div id="grid-container">
+            <table id="grid"></table>
+            <div id="pager"></div>
         </div>
     </div>
 </div>
 {% endblock content %}
 
 {% block js %}
+
 <script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
 <link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
 <script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
 <script src="{% static 'bootstrap_table/table.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/css/ui.jqgrid.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/jquery.jqgrid.min.js"></script>
 <script>
 
 
@@ -45,6 +52,14 @@ $(function(){
         type: 'bar',
         data: {},
         options: {
+            onClick: (e, elements) => {
+                if (elements.length > 0) {
+                    const element = elements[0];
+                    const index = element.index;
+                    const label = chart.data.labels[index];
+                    loadGridData(label);
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -67,6 +82,56 @@ $(function(){
                 }
             }
         }
+    });
+
+    function loadGridData(label) {
+    $.ajax({
+        url: '{% url 'problem_chart_grid_api' %}',
+        type: 'post',
+        dataType: 'json',
+        data: { 'label': label, 'start_date': $("#id_start_date").val(), "csrfmiddlewaretoken": "{{ csrf_token }}" },
+        success: function (data) {
+            $("#grid").jqGrid('GridUnload');
+            $("#grid").jqGrid({
+                dataType: 'json',
+                data: data,
+                colNames: ['title'],
+                colModel: [
+                    { name: 'title', index: 'title', width: 200 },
+                ],
+                pager: '#pager',
+                rowNum: 10,
+                rowList: [10, 20, 30],
+                viewrecords: true,
+                caption: "Details for " + label
+            }).trigger("reloadGrid");
+        },
+        error: function (xhr, status, error) {
+            console.error("Error loading data: ", status, error);
+        }
+        });
+    }
+
+    // Initialize empty grid
+    $("#grid").jqGrid({
+        datatype: 'local',  // 初始化为空表格
+        colNames: ['ID', 'Created At', 'Problem Type', 'Description'],
+        colModel: [
+            { name: 'id', index: 'id', width: 55, sorttype: 'int' },
+            { name: 'create_at', index: 'create_at', width: 90, sorttype: 'date' },
+            { name: 'problem_type', index: 'problem_type', width: 80 },
+            { name: 'description', index: 'description', width: 150 }
+        ],
+        pager: '#pager',
+        rowNum: 10,
+        rowList: [10, 20, 30],
+        sortname: 'id',
+        sortorder: 'desc',
+        viewrecords: true,
+        gridview: true,
+        autoencode: true,
+        caption: 'Problems',
+        height: 'auto'
     });
 
     $("#button-id-search").on('click', function() {
