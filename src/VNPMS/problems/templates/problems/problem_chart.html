@@ -21,12 +21,16 @@
             {% csrf_token %}
             {% crispy form %}
         </form>
-        <div style="width:60%;">
-            <canvas id="paretoChart"></canvas>
-        </div>
-        <div id="grid-container">
-            <table id="grid"></table>
-            <div id="pager"></div>
+        <div class="row">
+            <div class="col">
+                <canvas id="paretoChart"></canvas>
+            </div>
+            <div class="col">
+                <div id="grid-container">
+                    <table id="grid"></table>
+                    <div id="pager"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -91,20 +95,12 @@ $(function(){
         dataType: 'json',
         data: { 'label': label, 'start_date': $("#id_start_date").val(), "csrfmiddlewaretoken": "{{ csrf_token }}" },
         success: function (data) {
-            $("#grid").jqGrid('GridUnload');
-            $("#grid").jqGrid({
-                dataType: 'json',
-                data: data,
-                colNames: ['title'],
-                colModel: [
-                    { name: 'title', index: 'title', width: 200 },
-                ],
-                pager: '#pager',
-                rowNum: 10,
-                rowList: [10, 20, 30],
-                viewrecords: true,
-                caption: "Details for " + label
-            }).trigger("reloadGrid");
+            // 清空现有数据
+            $("#grid").jqGrid('clearGridData');
+
+            // 加载新数据
+            $("#grid").jqGrid('setGridParam', { data: data.rows });
+            $("#grid").trigger('reloadGrid');
         },
         error: function (xhr, status, error) {
             console.error("Error loading data: ", status, error);
@@ -115,12 +111,10 @@ $(function(){
     // Initialize empty grid
     $("#grid").jqGrid({
         datatype: 'local',  // 初始化为空表格
-        colNames: ['ID', 'Created At', 'Problem Type', 'Description'],
+        colNames: ['Record Date', 'Title'],
         colModel: [
-            { name: 'id', index: 'id', width: 55, sorttype: 'int' },
-            { name: 'create_at', index: 'create_at', width: 90, sorttype: 'date' },
-            { name: 'problem_type', index: 'problem_type', width: 80 },
-            { name: 'description', index: 'description', width: 150 }
+            { name: 'record_date', index: 'record_date', width: 150 },
+            { name: 'title', index: 'title', width: 400 },
         ],
         pager: '#pager',
         rowNum: 10,
@@ -183,6 +177,18 @@ $(function(){
 <style type="text/css">
 .search_btn_fix {
     padding-top: 15px;
+}
+
+.ui-jqgrid {
+    font-size: 16px;
+}
+.ui-jqgrid .ui-jqgrid-htable th {
+    font-size: 16px;
+    padding: 10px;
+}
+.ui-jqgrid .ui-jqgrid-btable td {
+    font-size: 16px;
+    line-height: 1.5em;
 }
 </style>
 {% endblock css %}

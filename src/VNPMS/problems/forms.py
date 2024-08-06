@@ -27,8 +27,6 @@ class ProblemForm(forms.ModelForm):
         self.helper.form_show_errors = True
         if not self.instance.pk:
             self['desc'].initial = """
-            【Issue日期】<p \>
-            【反應者】<p \>
             【問題描述】<p \>
             【問題原因】<p \>
             【Short-Term Solution】<p \>
@@ -47,7 +45,7 @@ class ProblemForm(forms.ModelForm):
         )
 
         self.fields['record_date'].widget = DatePickerInput(
-            attrs={'value': (datetime.now() - timedelta(days=45)).strftime('%Y-%m-%d')},
+            attrs={'value': (datetime.now()).strftime('%Y-%m-%d')},
             options={
                 "format": "YYYY-MM-DD",
                 "showClose": False,

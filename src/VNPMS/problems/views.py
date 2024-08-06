@@ -202,7 +202,15 @@ def problem_chart_grid_api(request):
         results = Problem.objects.filter(create_at__gte=_start_date, create_at__lte=_last_date, problem_type=problem_type)
 
         results_list = list(results.values())
-        return JsonResponse(results_list, safe=False)
+
+        response = {
+            "page": 1,
+            "total": 1,
+            "records": len(results_list),
+            "rows": results_list
+        }
+
+        return JsonResponse(response, safe=False)
 
 
 @login_required
