@@ -12,7 +12,7 @@ from bootstrap_datepicker_plus.widgets import DatePickerInput
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ('problem_type', 'problem_status', 'title', 'desc','issue_owner', 'record_date')
+        fields = ('problem_type', 'problem_status', 'title', 'desc', 'issue_owner', 'record_date')
 
     problem_type = forms.ModelChoiceField(required=False, label="問題類型", queryset=ProblemType.objects.all(), empty_label="---")
     problem_status = forms.ModelChoiceField(required=False, label="問題狀態", queryset=Status.objects.all(), initial=1)

@@ -77,6 +77,7 @@ MIGRATION_MODULES = {
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = 'pillow'
+CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -169,10 +170,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"), ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_IMAGE_BACKEND = "pillow"
-CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
-
 #GLOBAL_SETTINGS = {'STATUS_LIST': {'WAIT': 1, 'ON-GOING': 2}, 'FORM_TYPE': {'PROJECT': 1, 'REQUEST': 2}}
 
 #LOGIN_REDIRECT_URL = reverse_lazy('manage')
@@ -253,16 +250,10 @@ LANGUAGES = [
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
-EXE_FILE = "C:\\\"Program Files\"\\Seagull\\\"BarTender 2022\"\\BarTend.exe"
-ASSET_BTW_FILE = os.path.join(BASE_DIR, 'VNPMS', 'settings', 'bartender', 'template.btw')
-NON_ASSET_BTW_FILE = os.path.join(BASE_DIR, 'VNPMS', 'settings', 'bartender', 'non_asset.btw')
-PRINTER = "TSC TTP-345"
-
-
 # SMTP Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.east.seal2.ads'  #SMTP伺服器
+EMAIL_HOST = ''  #SMTP伺服器
 EMAIL_PORT = 25  #TLS通訊埠號
 EMAIL_USE_TLS = False  #開啟TLS(傳輸層安全性)
-EMAIL_HOST_USER = 'ebtw-general@tw.eagleburgmann.com'  #寄件者電子郵件
+EMAIL_HOST_USER = ''  #寄件者電子郵件
 EMAIL_HOST_PASSWORD = ''
