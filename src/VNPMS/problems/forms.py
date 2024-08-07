@@ -7,6 +7,7 @@ from bases.models import Status
 from problems.models import Problem, Problem_reply, ProblemType
 from django.utils.translation import gettext_lazy as _
 from bootstrap_datepicker_plus.widgets import DatePickerInput
+from django.utils import timezone
 
 
 class ProblemForm(forms.ModelForm):
@@ -25,6 +26,9 @@ class ProblemForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.form_show_errors = True
+
+        self.fields['problem_datetime'].initial = timezone.now
+
         if not self.instance.pk:
             self['desc'].initial = """
             【問題描述】<p \>
@@ -42,16 +46,6 @@ class ProblemForm(forms.ModelForm):
                 Div('title', css_class='col-md-12'),
                 css_class='row'),
             Div('desc'),
-        )
-
-        self.fields['problem_datetime'].widget = DatePickerInput(
-            attrs={'value': (datetime.now()).strftime('%d-%m-%Y')},
-            options={
-                "format": "DD-MM-YYYY",
-                "showClose": False,
-                "showClear": False,
-                "showTodayButton": False,
-            }
         )
 
 
