@@ -11,7 +11,7 @@ from assets.models import Asset, AssetArea, AssetCategory, AssetStatus, AssetTyp
 import openpyxl
 from django.http import JsonResponse
 import os
-from VNPMS.settings.base import ASSET_BTW_FILE, EXE_FILE, NON_ASSET_BTW_FILE, PRINTER, BASE_DIR
+from VNPMS.settings.base import BASE_DIR
 import csv
 from datetime import datetime
 from django.shortcuts import render, redirect

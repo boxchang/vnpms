@@ -18,8 +18,8 @@ class ProblemType(models.Model):
 
 class Problem(models.Model):
     problem_no = models.CharField('Problem No.', max_length=20, unique=True)
-    record_date = models.CharField('Record Date', max_length=20, blank=True, null=True)
-    issue_owner = models.CharField('Owner', max_length=80, blank=True, null=True)
+    problem_datetime = models.CharField('Problem Datetime', max_length=20, blank=True, null=True)
+    requester = models.CharField('Owner', max_length=80, blank=True, null=True)
     problem_type = models.ForeignKey(
         'problems.ProblemType', related_name='problem_type', on_delete=models.DO_NOTHING)
     problem_status = models.ForeignKey(

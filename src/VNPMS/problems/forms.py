@@ -12,14 +12,14 @@ from bootstrap_datepicker_plus.widgets import DatePickerInput
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ('problem_type', 'problem_status', 'title', 'desc', 'issue_owner', 'record_date')
+        fields = ('problem_type', 'problem_status', 'title', 'desc', 'requester', 'problem_datetime')
 
     problem_type = forms.ModelChoiceField(required=False, label="問題類型", queryset=ProblemType.objects.all(), empty_label="---")
     problem_status = forms.ModelChoiceField(required=False, label="問題狀態", queryset=Status.objects.all(), initial=1)
     title = forms.CharField(required=True, label=_('title'))
     desc = forms.CharField(required=False, label=_('desc'), widget=CKEditorUploadingWidget())
-    record_date = forms.DateField(label="Record Date")
-    issue_owner = forms.CharField(required=True, label=_('Issue Owner'))
+    problem_datetime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label="Problem Datetime")
+    requester = forms.CharField(required=True, label=_('Requester'))
     def __init__(self, *args, submit_title='Submit', **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -37,17 +37,17 @@ class ProblemForm(forms.ModelForm):
             Div(
                 Div('problem_type', css_class='col-md-3'),
                 Div('problem_status', css_class='col-md-3'),
-                Div('issue_owner', css_class='col-md-3'),
-                Div('record_date', css_class='col-md-3'),
+                Div('requester', css_class='col-md-3'),
+                Div('problem_datetime', css_class='col-md-3'),
                 Div('title', css_class='col-md-12'),
                 css_class='row'),
             Div('desc'),
         )
 
         self.fields['record_date'].widget = DatePickerInput(
-            attrs={'value': (datetime.now()).strftime('%Y-%m-%d')},
+            attrs={'value': (datetime.now()).strftime('%d-%m-%Y')},
             options={
-                "format": "YYYY-MM-DD",
+                "format": "DD-MM-YYYY",
                 "showClose": False,
                 "showClear": False,
                 "showTodayButton": False,
