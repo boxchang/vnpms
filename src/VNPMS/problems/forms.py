@@ -44,7 +44,7 @@ class ProblemForm(forms.ModelForm):
             Div('desc'),
         )
 
-        self.fields['record_date'].widget = DatePickerInput(
+        self.fields['problem_datetime'].widget = DatePickerInput(
             attrs={'value': (datetime.now()).strftime('%d-%m-%Y')},
             options={
                 "format": "DD-MM-YYYY",
