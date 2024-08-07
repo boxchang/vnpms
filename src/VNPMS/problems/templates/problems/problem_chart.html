@@ -111,9 +111,10 @@ $(function(){
     // Initialize empty grid
     $("#grid").jqGrid({
         datatype: 'local',  // 初始化为空表格
-        colNames: ['Issue DateTime', 'Title'],
+        colNames: ['id', 'Issue DateTime', 'Title'],
         colModel: [
-            { name: 'problem_datetime', index: 'problem_datetime', width: 150 },
+            { name: 'id', index: 'id', width: 180, align: 'center', hidden: true },
+            { name: 'problem_datetime', index: 'problem_datetime', width: 180, align: 'center' },
             { name: 'title', index: 'title', width: 400 },
         ],
         pager: '#pager',
@@ -125,7 +126,12 @@ $(function(){
         gridview: true,
         autoencode: true,
         caption: 'Problems',
-        height: 'auto'
+        height: 'auto',
+        ondblClickRow: function(rowid, iRow, iCol, e) {
+            var rowData = $(this).jqGrid('getRowData', rowid);
+            var newWindowUrl = '/problems/detail/' + rowData.id; // 替换为实际的 URL 和参数
+            window.open(newWindowUrl, '_blank');
+        }
     });
 
     $("#button-id-search").on('click', function() {
