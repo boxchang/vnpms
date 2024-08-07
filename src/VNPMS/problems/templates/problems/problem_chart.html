@@ -111,11 +111,12 @@ $(function(){
     // Initialize empty grid
     $("#grid").jqGrid({
         datatype: 'local',  // 初始化为空表格
-        colNames: ['id', 'Issue DateTime', 'Title'],
+        colNames: ['id', 'Issue DateTime', 'Title', 'Requester'],
         colModel: [
             { name: 'id', index: 'id', width: 180, align: 'center', hidden: true },
             { name: 'problem_datetime', index: 'problem_datetime', width: 180, align: 'center' },
             { name: 'title', index: 'title', width: 400 },
+            { name: 'requester', index: 'requester', width: 180, align: 'center' },
         ],
         pager: '#pager',
         rowNum: 10,

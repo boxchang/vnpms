@@ -199,7 +199,7 @@ def problem_chart_grid_api(request):
         _last_date = datetime.datetime(start_date.year, start_date.month,
                                        calendar.monthrange(start_date.year, start_date.month)[1]) + timedelta(days=1)
         problem_type = ProblemType.objects.get(type_name=problem_type)
-        results = Problem.objects.filter(create_at__gte=_start_date, create_at__lte=_last_date, problem_type=problem_type).order_by('problem_datetime')
+        results = Problem.objects.filter(create_at__gte=_start_date, create_at__lte=_last_date, problem_type=problem_type).order_by('-problem_datetime')
 
         results_list = list(results.values())
 
