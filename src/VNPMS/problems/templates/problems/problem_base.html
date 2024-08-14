@@ -40,10 +40,15 @@
                     </tr>
                     <tr>
                         <td class="text-center align-middle table-dark">Issue Owner ：</td>
-                        <td class="text-center align-middle">{{ problem.issue_owner }}</td>
+                        <td class="text-center align-middle">{{ problem.requester }}</td>
                         <td class="text-center align-middle table-dark">Record Date ：</td>
-                        <td class="text-center align-middle">{{ problem.record_date }}</td>
-
+                        <td class="text-center align-middle">{{ problem.problem_datetime }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-middle table-dark">Fact. :</td>
+                        <td class="text-center align-middle">{{ problem.fact }}</td>
+                        <td class="text-center align-middle table-dark">Dept. :</td>
+                        <td class="text-center align-middle">{{ problem.dept }}</td>
                     </tr>
                 </table>
                 {% if files %}

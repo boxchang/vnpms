@@ -5,6 +5,7 @@ from django import forms
 from datetime import datetime, timedelta
 from bases.models import Status
 from problems.models import Problem, Problem_reply, ProblemType
+from users.models import Unit
 from django.utils.translation import gettext_lazy as _
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django.utils import timezone
@@ -13,7 +14,7 @@ from django.utils import timezone
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ('problem_type', 'problem_status', 'title', 'desc', 'requester', 'problem_datetime')
+        fields = ('problem_type', 'problem_status', 'title', 'desc', 'requester', 'problem_datetime', 'plant', 'dept')
 
     problem_type = forms.ModelChoiceField(required=False, label="問題類型", queryset=ProblemType.objects.all(), empty_label="---")
     problem_status = forms.ModelChoiceField(required=False, label="問題狀態", queryset=Status.objects.all(), initial=1)
@@ -21,6 +22,8 @@ class ProblemForm(forms.ModelForm):
     desc = forms.CharField(required=False, label=_('desc'), widget=CKEditorUploadingWidget())
     problem_datetime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label="Problem Datetime")
     requester = forms.CharField(required=True, label=_('Requester'))
+    plant = forms.ChoiceField(required=True, label="Fact.", choices=[('NBR', 'NBR'),('PVC', 'PVC')])
+    dept = forms.ChoiceField(required=True, label="Dept.", choices=[(orgId, orgId) for orgId in Unit.objects.values_list('orgId', flat=True)])
     def __init__(self, *args, submit_title='Submit', **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -43,7 +46,9 @@ class ProblemForm(forms.ModelForm):
                 Div('problem_status', css_class='col-md-3'),
                 Div('requester', css_class='col-md-3'),
                 Div('problem_datetime', css_class='col-md-3'),
-                Div('title', css_class='col-md-12'),
+                Div('fact', css_class='col-md-3'),
+                Div('dept', css_class='col-md-3'),
+                Div('title', css_class='col-md-6'),
                 css_class='row'),
             Div('desc'),
         )
