@@ -46,7 +46,7 @@ class ProblemForm(forms.ModelForm):
                 Div('problem_status', css_class='col-md-3'),
                 Div('requester', css_class='col-md-3'),
                 Div('problem_datetime', css_class='col-md-3'),
-                Div('fact', css_class='col-md-3'),
+                Div('plant', css_class='col-md-3'),
                 Div('dept', css_class='col-md-3'),
                 Div('title', css_class='col-md-6'),
                 css_class='row'),
