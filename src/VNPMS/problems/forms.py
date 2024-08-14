@@ -23,7 +23,7 @@ class ProblemForm(forms.ModelForm):
     problem_datetime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label="Problem Datetime")
     requester = forms.CharField(required=True, label=_('Requester'))
     plant = forms.ChoiceField(required=True, label="Fact.", choices=[('', '---'), ('NBR', 'NBR'), ('PVC', 'PVC')])
-    dept = forms.ChoiceField(required=True, label="Dept.", choices=[(orgId, orgId) for orgId in Unit.objects.values_list('orgId', flat=True)])
+    dept = forms.ChoiceField(required=True, label="Dept.", choices=[(unit.unitId, unit.unitName) for unit in Unit.objects.all()])
     def __init__(self, *args, submit_title='Submit', **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
