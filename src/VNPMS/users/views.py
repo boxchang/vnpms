@@ -79,7 +79,7 @@ def login(request):
                 messages.error(request, '使用者名稱或密碼不正確！')
                 return render(request, template)
 
-            response = redirect(reverse('index'))
+            response = redirect(reverse('pms_home'))
             if request.POST.get('remember') == "on":
                 response.set_cookie("emp_no", emp_no, expires=timezone.now()+datetime.timedelta(days=30))
                 response.set_cookie("password", password, expires=timezone.now()+datetime.timedelta(days=30))
