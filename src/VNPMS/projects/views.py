@@ -200,7 +200,7 @@ def pms_home(request):
     projects = project_setting.project.all()
 
     problems = Problem.objects.filter(project__in=projects).order_by('-create_at')[:20]
-    status = Status.objects.filter(status_en__in=['Wait', 'On-Going', 'Done', 'Pendding'])
+    status = Status.objects.filter(status_en__in=['Wait', 'On-Going', 'Done', 'Pending'])
     requests = Request.objects.filter(project__in=projects, status__in=status).order_by('-create_at')[:20]
 
     return render(request, 'projects/homepage.html', locals())
