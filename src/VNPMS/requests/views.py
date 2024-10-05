@@ -169,7 +169,6 @@ def request_history(request):
     return render(request, 'requests/request_history.html', locals())
 
 
-@login_required
 def request_detail(request, pk):
     FULL_URL_WITH_QUERY_STRINg = request.build_absolute_uri()
     FULL_URL = request.build_absolute_uri('?')
