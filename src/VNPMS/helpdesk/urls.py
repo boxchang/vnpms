@@ -7,7 +7,7 @@ urlpatterns = [
     url(r'^detail/(?P<pk>\d+)/$', helpdesk_detail, name="helpdesk_detail"),
     url(r'^delete/(?P<pk>\d+)/$', helpdesk_delete, name="helpdesk_delete"),
     url(r'^rfd/(?P<pk>\d+)', helpdesk_file_delete, name="helpdesk_file_delete"),
-    url(r'^search/$', search, name="search"),
+    url(r'^search/$', search, name="helpdesk_search"),
     url(r'^(?P<help_no>\w+)$', helpdesk_guest, name="helpdesk_guest"),
     url(r'^', index, name='help_index'),
 ]
