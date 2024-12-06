@@ -15,9 +15,9 @@
 <div class="card-header">
     {% if user.is_authenticated %}
     <div class="row">
-        <div class="col"><h2>知識管理</h2></div>
+        <div class="col"><h2>Knowledge Management</h2></div>
         <div class="ml-md-auto">
-            <a class="btn btn-warning btn-sm" href="{% url 'helpdesk_create' %}" role="button"><i class="far fa-edit"></i>新增SOP</a>
+            <a class="btn btn-warning btn-sm" href="{% url 'helpdesk_create' %}" role="button"><i class="far fa-edit"></i>Add SOP</a>
             <a class="btn btn-info" href="{% url 'logout' %}" role="button"><i class="fas fa-sign-out-alt"></i>{% trans "logout" %} ({{ user.username }})</a>
         </div>
     </div>

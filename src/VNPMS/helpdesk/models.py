@@ -18,7 +18,7 @@ class Helpdesk(models.Model):
                                   related_name='helpdesk_update_at')  # 修改者
 
     def get_absolute_url(self):
-        return reverse('search')
+        return reverse('helpdesk_search')
 
 
 class Helpdesk_attachment(models.Model):
