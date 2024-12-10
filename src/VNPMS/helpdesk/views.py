@@ -88,13 +88,13 @@ def helpdesk_create(request):
                     request_file = Helpdesk_attachment(
                         files=request.FILES['files1'])
                     request_file.description = request.POST['description1']
-                    request_file.request = tmp_form
+                    request_file.helpdesk = tmp_form
                     request_file.save()
                 if request.FILES.get('files2'):
                     request_file = Helpdesk_attachment(
                         files=request.FILES['files2'])
                     request_file.description = request.POST['description2']
-                    request_file.request = tmp_form
+                    request_file.helpdesk = tmp_form
                     request_file.save()
 
             return redirect(tmp_form.get_absolute_url())
