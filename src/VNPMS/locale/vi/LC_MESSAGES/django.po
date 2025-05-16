@@ -475,9 +475,19 @@ msgstr ""
 msgid "waiting"
 msgstr ""
 
+#: .\projects\templates\projects\homepage.html:58
+msgid "Deadline"
+msgstr "Hạn cuối"
+
 #: .\projects\templates\projects\homepage.html:89
 msgid "on_going"
 msgstr ""
+
+msgid "Expired"
+msgstr "Đã hết hạn"
+
+msgid "Duration: %(duration)s day(s)"
+msgstr "Thời hạn: %(duration)s ngày"
 
 #: .\projects\templates\projects\homepage.html:119
 msgid "finished"

@@ -55,9 +55,19 @@ msgstr "DataHasBeenTransfered"
 msgid "waiting"
 msgstr "Waiting"
 
+#: .\bases\templates\bases\homepage.html:80
+msgid "Deadline"
+msgstr "Deadline"
+
 #: .\bases\templates\bases\homepage.html:122
 msgid "on_going"
 msgstr "On going"
+
+msgid "Expired"
+msgstr "Expired"
+
+msgid "Duration: %(duration)s day(s)"
+msgstr "Duration: %(duration)s day(s)"
 
 #: .\bases\templates\bases\homepage.html:152
 msgid "finished"

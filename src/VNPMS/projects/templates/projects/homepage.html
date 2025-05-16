@@ -31,6 +31,20 @@
         max-height:350px;
         overflow: auto;
     }
+
+    #Wait div .card-header, #On-Going div .card-header, #Finished div .card-header, #pendding div .card-header {
+        width: 97%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (max-width: 768px) {
+        #Wait div .card-header, #On-Going div .card-header, #Finished div .card-header, #pendding div .card-header {
+            flex-direction: row;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+    }
     </style>
 {% endblock css %}
 {% block js %}
@@ -61,8 +75,11 @@
                                 {% for o_request in requests %}
                                     {% if o_request.status.status_en == 'Wait' %}
                                         <div class="card" style="width:97%;background-color: #ffffe6;" data-position="Wait" data-num="{{ o_request.request_no }}">
-                                            <div class="card-header" style="width:97%; text-align: left">
+                                            <div class="card-header" style="width:97%">
                                                 <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                                <h7 class="card-title {% if o_request.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                    {{ o_request.due_date }}
+                                                </h7>
                                             </div>
                                             <div class="card-body" style="width:97%;">
                                                 <span>
@@ -92,8 +109,11 @@
                                 {% for o_request in requests %}
                                     {% if o_request.status.status_en == 'On-Going' %}
                                         <div class="card" style="width:97%;background-color: #ffffe6;" data-position="On-Going" data-num="{{ o_request.request_no }}">
-                                            <div class="card-header" style="width:97%; text-align: left">
+                                            <div class="card-header" style="width:97%">
                                                 <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                                <h7 class="card-title {% if o_request.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                    {{ o_request.due_date }}
+                                                </h7>
                                             </div>
                                             <div class="card-body" style="width:97%;">
                                                 <span>

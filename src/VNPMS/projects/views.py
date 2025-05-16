@@ -13,6 +13,7 @@ from problems.models import Problem
 from projects.forms import ProjectForm, ProjectSettingForm
 from projects.models import Project, Project_setting
 from requests.models import Request
+from datetime import date
 
 
 # def index(request):
@@ -202,5 +203,11 @@ def pms_home(request):
     problems = Problem.objects.filter(project__in=projects).order_by('-create_at')[:40]
     status = Status.objects.filter(status_en__in=['Wait', 'On-Going', 'Done', 'Pending'])
     requests = Request.objects.filter(project__in=projects, status__in=status).order_by('-create_at')
+
+    for req in requests:
+        if req.due_date and req.start_date:
+            req.duration = (req.due_date - date.today()).days
+        else:
+            req.duration = None
 
     return render(request, 'projects/homepage.html', locals())

@@ -474,8 +474,18 @@ msgid "waiting"
 msgstr "等待中"
 
 #: .\projects\templates\projects\homepage.html:89
+msgid "Deadline"
+msgstr "截止日期"
+
+#: .\projects\templates\projects\homepage.html:89
 msgid "on_going"
 msgstr "處理中"
+
+msgid "Expired"
+msgstr "已到期"
+
+msgid "Duration: %(duration)s day(s)"
+msgstr "期限：%(duration)s 天"
 
 #: .\projects\templates\projects\homepage.html:119
 msgid "finished"
