@@ -8,7 +8,7 @@
 {% block css %}
     <style>
         #Wait, #On-Going, #Finished, #pendding { list-style-type: none; margin: 0; float: left; padding: 5px; width: 143px;}
-        #Wait div, #On-Going div, #Finished div, #pendding div { margin: 5px; padding: 5px; font-size: 0.95em; width: 120px;}
+        #Wait div, #On-Going div, #Finished div, #pendding div { margin: 5px; padding: 5px; font-size: 1em; width: 120px;}
         .card-body{
             padding: 0px;
             border: thin;
@@ -17,15 +17,7 @@
         .big{
             background-color: #ccf2ff;
         }
-        th{
-            font-size: 15px;
-        }
-        td{
-            font-size: 14px;
-        }
-        option{
-            font-size: 14px;
-        }
+
     .droptrue{
         width:100%;
         max-height:350px;
@@ -76,10 +68,10 @@
                                     {% if o_request.status.status_en == 'Wait' %}
                                         <div class="card" style="width:97%;background-color: #ffffe6;" data-position="Wait" data-num="{{ o_request.request_no }}">
                                             <div class="card-header" style="width:97%">
-                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
-                                                <h7 class="card-title {% if o_request.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                <h6 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h6>
+                                                <h6 class="card-title {% if o_request.duration < 1 %}text-danger fw-bold{% endif %}">
                                                     {{ o_request.due_date|date:"d/m/Y" }}
-                                                </h7>
+                                                </h6>
                                             </div>
                                             <div class="card-body" style="width:97%;">
                                                 <span>
