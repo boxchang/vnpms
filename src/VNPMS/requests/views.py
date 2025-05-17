@@ -119,7 +119,8 @@ def request_edit(request, pk):
             return redirect(require.get_absolute_url())
     else:
         form = RequestForm(instance=require)
-    return render(request, 'requests/request_edit.html', locals())
+    return render(request, 'requests/request_edit.html',
+                  locals())
 
 @login_required
 def reply_edit(request, pk):
