@@ -1,13 +1,15 @@
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit
+from crispy_forms.layout import Layout, Div, Submit, HTML
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from bases.models import Status
 from requests.models import Request, Level, Request_reply
 from datetime import datetime, timedelta
 from users.models import CustomUser
+from projects.models import Project
+from django_select2 import forms as s2forms
 
 class RequestHistoryForm(forms.ModelForm):
     class Meta:
@@ -126,22 +128,64 @@ class RequestReplyForm(forms.ModelForm):
             )
         )
 
+
+class ProjectWidget(s2forms.ModelSelect2Widget):
+    search_fields = [
+        'name__icontains',
+    ]
+
+
+class BelongToWidget(s2forms.ModelSelect2Widget):
+    search_fields = [
+        'title__icontains',
+    ]
+
+
 class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = (
             'title', 'start_date', 'due_date', 'process_rate', 'estimate_time', 'level', 'owner', 'desc',
-            'status', 'actual_date',)
+            'status', 'actual_date', 'project', 'belong_to',)
 
     level = forms.ModelChoiceField(required=True, label=_('level'), queryset=Level.objects.all(), initial=2)
     title = forms.CharField(required=True, label=_('title'))
     desc = forms.CharField(required=False, label=_('desc'), widget=CKEditorUploadingWidget())
     status = forms.ModelChoiceField(required=True, label=_('status'), queryset=Status.objects.all(), initial=1)
-    owner = forms.ModelChoiceField(required=False, label=_('owner'), queryset=CustomUser.objects.all())
+    owner = forms.ModelChoiceField(
+        required=False,
+        label=_('owner'),
+        queryset=CustomUser.objects.all(),
+        widget=s2forms.Select2Widget(attrs={
+            'class': 'form-control select-field',
+            'data-placeholder': _('Search owner...'),
+            'data-minimum-input-length': 0,
+        })
+    )
     estimate_time = forms.IntegerField(required=False, label=_('estimate_time'), widget=forms.NumberInput(), initial=0, )
     start_date = forms.DateField(label=_('starttime'))
     due_date = forms.DateField(label=_('finishtime'))
     actual_date = forms.DateField(required=False, label=_('actualtime'))
+    project = forms.ModelChoiceField(
+        required=False,
+        queryset=Project.objects.all(),
+        label=_('project'),
+        widget=s2forms.Select2Widget(attrs={
+            'class': 'form-control select-field',
+            'data-placeholder': _('Search project...'),
+            'data-minimum-input-length': 0,
+        })
+    )
+    belong_to = forms.ModelChoiceField(
+        required=False,
+        queryset=Request.objects.filter(status_id__in=[1, 2]),
+        label=_('belong_to'),
+        widget=s2forms.Select2Widget(attrs={
+            'class': 'form-control select-field',
+            'data-placeholder': _('Search request...'),
+            'data-minimum-input-length': 0,
+        })
+    )
 
     def __init__(self, *args, submit_title='Submit', **kwargs):
         super().__init__(*args, **kwargs)
@@ -163,6 +207,9 @@ class RequestForm(forms.ModelForm):
                 css_class='row'),
             Div(Div('owner', css_class='col-md-6'),
                 Div('estimate_time', css_class='col-md-6'),
+                css_class='row'),
+            Div(Div('project', css_class='col-md-6'),
+                Div('belong_to', css_class='col-md-6'),
                 css_class='row'),
         )
 
