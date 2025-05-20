@@ -49,8 +49,11 @@
 {% block content %}
     <div class="card">
         <div class="card-header" style="background-color: #e0e0e0">
-            <div class="row">
-                <div class="col-4"><h3>Dashboard</h3></div>
+            <div class="row" style="justify-content: space-between">
+                <div class="col-4" style="display: flex; align-items: center; gap: 20px">
+                    <h3 style="margin: 0; padding: 0;">Dashboard</h3>
+                    <button type="button" class="btn btn-primary" id="dashboard_filter_btn">My Task</button>
+                </div>
                 <div class="col-8 text-right">
                     <a href="{% url "helpdesk_search" %}" role="button" data-toggle="tooltip" data-placement="bottom" title="knowledge management"><i class="fa fa-book fa-2x pr-2"></i></a>
                     <a href="{% url "request_page" pk %}" role="button" data-toggle="tooltip" data-placement="bottom" title="the detail of projects"><i class="far fa-credit-card fa-2x"></i></a>
@@ -392,6 +395,29 @@
             </table>
         </div>
     </div>
+    <script>
+        const dashboard_filter_btn = document.getElementById('dashboard_filter_btn');
+        let urlParams = new URLSearchParams(window.location.search);
+
+        // Set initial button text
+        dashboard_filter_btn.textContent = urlParams.has('filter') ? "All" : "My Task";
+
+        dashboard_filter_btn.addEventListener('click', () => {
+            // Create new params object to avoid mutation issues
+            const newParams = new URLSearchParams(window.location.search);
+
+            if (dashboard_filter_btn.textContent.toLowerCase().trim() === "my task") {
+                newParams.set('filter', 'true');
+                dashboard_filter_btn.textContent = "All";
+            } else {
+                newParams.delete('filter');
+                dashboard_filter_btn.textContent = "My Task";
+            }
+
+            // Update the URL
+            window.location.search = newParams.toString();
+        });
+    </script>
 {% endblock %}
 
 

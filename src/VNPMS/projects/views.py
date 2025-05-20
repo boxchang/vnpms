@@ -202,7 +202,12 @@ def pms_home(request):
 
     problems = Problem.objects.filter(project__in=projects).order_by('-create_at')[:40]
     status = Status.objects.filter(status_en__in=['Wait', 'On-Going', 'Done', 'Pending'])
-    requests = Request.objects.filter(project__in=projects, status__in=status).order_by('-create_at')
+
+    mode = request.GET.get('filter', None)
+    if mode:
+        requests = Request.objects.filter(project__in=projects, status__in=status, owner_id=obj.id).order_by('-create_at')
+    else:
+        requests = Request.objects.filter(project__in=projects, status__in=status).order_by('-create_at')
 
     for req in requests:
         if req.due_date and req.start_date:
