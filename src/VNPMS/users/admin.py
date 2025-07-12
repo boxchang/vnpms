@@ -9,7 +9,7 @@ from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 @admin.register(Unit)
 class CarStatusAdmin(admin.ModelAdmin):
-    list_display = ('orgId', 'unitId', 'unitName', 'cost_center', 'isValid',)
+    list_display = ('plant', 'unitId', 'unitName', 'cost_center', 'isValid',)
 
 
 class CustomUserAdmin(UserAdmin):

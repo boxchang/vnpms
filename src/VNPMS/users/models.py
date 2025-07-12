@@ -9,10 +9,22 @@ from django.core import validators
 from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
 
+class Plant(models.Model):
+    plant_code = models.CharField("Plant Code", max_length=30, unique=True)  # GD/LK/LT
+    plant_name = models.CharField("Plant Name", max_length=30)  # GD/LK/LT
+    create_at = models.DateTimeField(auto_now_add=True, editable=True)  # 建立日期
+    create_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+                                  related_name='plant_create_by')  # 建立者
+    update_at = models.DateTimeField(auto_now=True, null=True)
+    update_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, related_name='plant_update_by')
+
+    def __str__(self):
+        return self.plant_code
+
 
 class Unit(models.Model):
     unitId = models.CharField("部門編號", max_length=30, unique=True)
-    orgId = models.CharField("組織編號", max_length=30, blank=False, null=False)
+    plant = models.ForeignKey(Plant, related_name='plant_unit', blank=True, null=True, on_delete=models.DO_NOTHING)
     unitName = models.CharField("部門名稱", max_length=30, blank=False, null=False)
     isValid = models.CharField("失效", max_length=1, blank=False, null=False, default=0)
     cost_center = models.CharField("成本中心", max_length=30, blank=True, null=True)
@@ -138,10 +150,44 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email])
 
 
-
-
 # @receiver(models.signals.post_delete, sender=CustomUser)
 # def auto_delete_file_on_delete(sender, instance, **kwargs):
 #     if instance.files:
 #         if os.path.isfile(instance.files.path):
 #             os.remove(instance.files.path)
+
+
+class Group(models.Model):
+    group_name = models.CharField("Group Name", max_length=30, unique=True)
+    group_description = models.CharField("Group Description", max_length=30)
+    visibility = models.BooleanField("Visibility", blank=False, null=False, default=False)
+    image = image = models.ImageField("Group Image", upload_to='group_images/', blank=True, null=True)
+    create_at = models.DateTimeField(auto_now_add=True, editable=True)
+    create_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+                                  related_name='group_create_by')  # 建立者
+    update_at = models.DateTimeField(auto_now=True, null=True)
+    update_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, related_name='group_update_by')
+
+    def __str__(self):
+        return self.group_name
+
+
+class Member(models.Model):
+    member = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='group_memberships'  # e.g., user.group_memberships.all()
+    )
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    isJoin = models.BooleanField(default=False)
+    create_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING,
+        related_name='invitations_sent'
+    )
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'users_member'
+
+

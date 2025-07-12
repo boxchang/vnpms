@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^reply/(?P<pk>\d+)/$', request_reply, name="request_reply"),
     url(r'^reply_delete/(?P<pk>\d+)/$', reply_delete, name="request_reply_delete"),
     url(r'^reply_edit/(?P<pk>\d+)/$', reply_edit, name="reply_edit"),
+    url(r'^send_notification/$', send_notification, name="send_request_notification"),
 ]

@@ -20,8 +20,8 @@
 
         </small>
         <div class="collapse navbar-collapse justify-content-end">
-                <input class="form-control col-2" type="text" placeholder="keyword" name="keywords">&nbsp;
-                <button type="submit" class="btn btn-warning">Search</button>
+                <input class="form-control col-2" type="text" placeholder="{% trans 'keyword' %}" name="keywords">&nbsp;
+                <button type="submit" class="btn btn-warning">{% trans "Search" %}</button>
             <div class="ml-4 mr-4">
                 <a class="text-warning" href="{% url 'project_setting' %}"><i class="fas fa-cog fa-2x"></i></a>
             </div>
@@ -41,7 +41,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb" style="padding:0px 20px">
                 {% block breadcrumb %}
-                    <li class="breadcrumb-item"><a href="{% url 'pms_home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'pms_home' %}">{% trans "Home" %}</a></li>
                 {% endblock %}
 
             </ol>

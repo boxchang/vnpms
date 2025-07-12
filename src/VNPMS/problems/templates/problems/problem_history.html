@@ -30,8 +30,7 @@
             <th>問題類型</th>
             <th>標題</th>
             <th>狀態</th>
-            <th>建立者</th>
-            <th>建立日期</th>
+            <th>處理者</th>
             <th>更新者</th>
             <th>更新日期</th>
         </tr>
@@ -43,8 +42,7 @@
                 <td>{{ problem.problem_type }}</td>
                 <td>{{ problem.title }}</td>
                 <td>{{ problem.problem_status }}</td>
-                <td>{{ problem.create_by }}</td>
-                <td>{{ problem.create_at|date:'Y-m-d' }}</td>
+                <td>{{ problem.owner }}</td>
                 <td>{{ problem.update_by }}</td>
                 <td>{{ problem.update_at|date:'Y-m-d' }}</td>
             </tr>

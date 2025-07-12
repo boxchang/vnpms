@@ -9,6 +9,7 @@ from bases.views import get_user_setting_pagenum
 from requests.forms import *
 from requests.utils import *
 from tests.models import Request_test
+from users.models import Plant, Unit
 
 
 @login_required
@@ -152,11 +153,19 @@ def request_history(request):
     p = request.GET.get('p')  # 專案id
     project = Project.objects.get(pk=p)
     if request.method == 'POST':
+        _plant = request.POST['plant']
+        _owner = request.POST['owner']
         _status = request.POST['status']
         _start_date = str(request.POST['start_date']).replace('/', '-')
         _due_date = str(request.POST['due_date']).replace('/', '-')
         requires = Request.objects.filter(project=project)
         _due_date = datetime.strptime(_due_date, '%Y-%m-%d') + timedelta(days=1)
+
+        if _plant:
+            requires = requires.filter(plant=_plant)
+
+        if _owner:
+            requires = requires.filter(owner=_owner)
 
         if _status:
             requires = requires.filter(status=_status)
@@ -178,7 +187,7 @@ def request_detail(request, pk):
 
     try:
         data = Request.objects.get(pk=pk)
-        status_html = get_status_dropdown(data)
+        status_html = get_status_dropdown(o_id=data.id, o_status=data.status)
         project = data.project.pk
         request_no = data.request_no
         project = data.project.pk
@@ -283,13 +292,13 @@ def request_delete_all(obj):
 
 def change_status(request):
     if request.POST:
-        request_id = request.POST.get('request_id')
+        request_id = request.POST.get('o_id')
         status_id = request.POST.get('status_id')
 
         status = Status.objects.get(pk=status_id)
         obj = Request.objects.get(pk=request_id)
         obj.status = status
-        if status.status_en == "Finished":
+        if status.status_en == "Done":
             obj.actual_date = datetime.now()
         obj.save()
 
@@ -407,3 +416,27 @@ def request_page(request, pk):
     except Project.DoesNotExist:
         raise Http404
     return render(request, 'requests/request_page.html', locals())
+
+
+@login_required
+def send_notification(request):
+    request_id = request.GET.get('request_id')
+
+    try:
+        request_data = Request.objects.get(pk=request_id)
+
+        # Send WeCom message
+        msg = f"""### 🔔️️ **[REQUEST REMINDER]**
+        **Request Number**: {request_data.request_no}  
+        **Title**: {request_data.title}  
+        **Plant**: {request_data.plant}  
+        **Status**: *{request_data.status.status_en}*\n⚠ *This is a reminder from the manager. Please check and update the issue.*\n👉 [Check The Request Here]({request.build_absolute_uri(request_data.get_absolute_url())})
+        """
+        send_wecom_message(msg)
+
+        return redirect(request_data.get_absolute_url())
+
+    except Problem.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Request not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

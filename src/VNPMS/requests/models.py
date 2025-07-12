@@ -16,6 +16,7 @@ from django.dispatch import receiver
 class Request(models.Model):
     request_no = models.CharField(
         'Request No.', max_length=20, unique=True)  # 需求單號
+    plant = models.CharField(max_length=10, null=True, blank=True)
     title = models.CharField(max_length=100)  # 標題
     desc = RichTextUploadingField(null=True, blank=True, external_plugin_resources=[(
         'youtube',
@@ -53,6 +54,10 @@ class Request(models.Model):
 
     def get_absolute_url(self):
         return reverse('request_detail', kwargs={'pk': self.pk})
+
+    @property
+    def type_name(self):
+        return "Request"
 
 
 class Level(models.Model):

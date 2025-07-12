@@ -179,7 +179,7 @@
                             <span class="input-group-text"><i class="fas fa-robot"></i></span>
                         </div>
                         <input type="checkbox" name="remember" class="form-control" value="on" checked>
-                        <span style="font-size:1.1em;">Remember Password</span>
+                        <span style="font-size:1.1em; width: 172px">{% trans "Remember Password" %}</span>
                     </div>
                         <input type="hidden" name="next" value="{{ next }}" />
                     </form>
@@ -189,6 +189,7 @@
                         </div>
                         {% include 'bases/lang.html' %}
                     </div>
+                    <p class="signin text-center">{% trans 'Does not have an account?' %} <a href="{% url 'signup' %}">{% trans 'Sign up' %}</a></p>
                     <div class="form-group text-center pt-3">
                         <input type="button" value="{% trans "Submit" %}" class="btn login_btn" onclick="submit('login_form');">
                     </div>
@@ -196,14 +197,17 @@
                 </div>
                 <div class="card-footer">
                     {% if messages %}
-                        <div class="float-left">
-                            <ul class="messages">
-                                {% for message in messages %}
-                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                        {% for msg in messages %}
+                            {% if forloop.last %}
+                                <div class="float-left">
+                                    <ul class="messages">
+                                        <li{% if msg.tags %} class="{{ msg.tags }}"{% endif %}>{{ msg }}</li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
+
                 </div>
             </div>
         </div>

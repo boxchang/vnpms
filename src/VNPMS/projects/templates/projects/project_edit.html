@@ -35,8 +35,8 @@
           <form method="POST">
             {% csrf_token %}
             {% crispy form %}
-            <button type="submit" class="btn btn-primary" id="send">Save</button>
-            <input type=button class="btn btn-primary" value="Cancel" onClick="javascript:history.go(-1);">
+            <button type="submit" class="btn btn-primary" id="send">{% trans "Save" %}</button>
+            <input type=button class="btn btn-secondary" value="{% trans 'Cancel' %}" onClick="javascript:history.go(-1);">
           </form>
           {% for field in form. %}
             {{ field.errors }}

@@ -8,15 +8,148 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-01-23 14:02+0800\n"
-"PO-Revision-Date: 2019-01-21 11:38+0800\n"
+"PO-Revision-Date: 2025-05-29 11:33+0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: en_US\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 3.6\n"
+
+#: .\user\templates\problem\problem_feed.html:9
+msgid "Description"
+msgstr "Description"
+
+msgid "Root Cause"
+msgstr "Root Cause"
+
+msgid "Short Term Solution"
+msgstr "Short Term Solution"
+
+msgid "Long Term Solution"
+msgstr "Long Term Solution"
+
+msgid "Type:"
+msgstr "Type:"
+
+msgid "Expected Date:"
+msgstr "Expected Date:"
+
+msgid "Attachments:"
+msgstr "Attachments:"
+
+msgid "Show more"
+msgstr "Show more"
+
+msgid "Show less"
+msgstr "Show less"
+
+msgid "Add a reply..."
+msgstr "Add a reply..."
+
+msgid "Problem Feed"
+msgstr "Problem Feed"
+
+msgid "Create problem"
+msgstr "Create problem"
+
+msgid "Search by keyword"
+msgstr "Search by keyword"
+
+msgid "Search problems..."
+msgstr "Search problems..."
+
+msgid "Problem type"
+msgstr "Problem type"
+
+msgid "All Types"
+msgstr "All Types"
+
+msgid "Start Date"
+msgstr "Start Date"
+
+msgid "End Date"
+msgstr "End Date"
+
+msgid "Wait"
+msgstr "Wait"
+
+msgid "On-Going"
+msgstr "On-Going"
+
+msgid "Done"
+msgstr "Done"
+
+msgid "Assigning"
+msgstr "Assigning"
+
+msgid "REQUESTER"
+msgstr "REQUESTER"
+
+
+#: .\user\templates\user\signUp.html:9
+msgid "Register"
+msgstr "Register"
+
+msgid "Signup now and get full access to our app."
+msgstr "Signup now and get full access to our app."
+
+msgid "Select Plant"
+msgstr "Select Plant"
+
+msgid "Select Department"
+msgstr "Select Department"
+
+msgid "Employee number"
+msgstr "Employee number"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Confirm password"
+msgstr "Confirm password"
+
+msgid "Create Account"
+msgstr "Create Account"
+
+msgid "Already have an account?"
+msgstr "Already have an account?"
+
+msgid "Sign in"
+msgstr "Sign in"
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Please select a plant"
+msgstr "Please select a plant"
+
+msgid "Please select a department"
+msgstr "Please select a department"
+
+msgid "Please enter your employee number"
+msgstr "Please enter your employee number"
+
+msgid "Please enter your name"
+msgstr "Please enter your name"
+
+msgid "Please fill out both password fields"
+msgstr "Please fill out both password fields"
+
+msgid "Password must be at least 6 characters"
+msgstr "Password must be at least 6 characters"
+
+msgid "Passwords do not match"
+msgstr "Passwords do not match"
+
+msgid "Please enter a valid email address"
+msgstr "Please enter a valid email address"
+
 
 #: .\bases\templates\bases\attach_form.html:9
 msgid "attachment"
@@ -124,16 +257,16 @@ msgstr "Project"
 #: .\bugs\templates\bugs\bug_detail.html:155 .\problems\forms.py:18
 #: .\projects\templates\projects\project_manage.html:116
 #: .\projects\templates\projects\project_manage.html:148
-#: .\projects\templates\projects\project_manage.html:175
-#: .\requests\forms.py:74 .\requests\templates\requests\request_base.html:185
+#: .\projects\templates\projects\project_manage.html:175 .\requests\forms.py:74
+#: .\requests\templates\requests\request_base.html:185
 #: .\requests\templates\requests\request_base.html:214
 msgid "title"
 msgstr "Title"
 
 #: .\bases\templates\bases\homepage.html:290 .\bugs\forms.py:19
 #: .\projects\templates\projects\project_manage.html:120
-#: .\projects\templates\projects\project_manage.html:179
-#: .\requests\forms.py:76 .\requests\templates\requests\request_base.html:218
+#: .\projects\templates\projects\project_manage.html:179 .\requests\forms.py:76
+#: .\requests\templates\requests\request_base.html:218
 msgid "status"
 msgstr "Status"
 
@@ -178,8 +311,8 @@ msgid "login"
 msgstr "Login"
 
 #: .\bugs\forms.py:18 .\projects\templates\projects\project_manage.html:118
-#: .\projects\templates\projects\project_manage.html:177
-#: .\requests\forms.py:73 .\requests\templates\requests\request_base.html:48
+#: .\projects\templates\projects\project_manage.html:177 .\requests\forms.py:73
+#: .\requests\templates\requests\request_base.html:48
 #: .\requests\templates\requests\request_base.html:216
 msgid "level"
 msgstr "Level"
@@ -193,8 +326,7 @@ msgid "bug_index"
 msgstr "Bug index"
 
 #: .\bugs\templates\bugs\bug_detail.html:29
-#: .\bugs\templates\bugs\bug_edit.html:5
-#: .\bugs\templates\bugs\bug_edit.html:15
+#: .\bugs\templates\bugs\bug_edit.html:5 .\bugs\templates\bugs\bug_edit.html:15
 #: .\bugs\templates\bugs\bug_edit.html:28
 msgid "bug_edit"
 msgstr "Bug edit"
@@ -223,8 +355,7 @@ msgstr "Problem create"
 msgid "problem_no"
 msgstr "Problem no"
 
-#: .\bugs\templates\bugs\bug_edit.html:7
-#: .\bugs\templates\bugs\bug_edit.html:17
+#: .\bugs\templates\bugs\bug_edit.html:7 .\bugs\templates\bugs\bug_edit.html:17
 #: .\bugs\templates\bugs\bug_edit.html:30
 #: .\projects\templates\projects\project_manage.html:61
 msgid "bug_create"
@@ -320,8 +451,8 @@ msgstr "Request number"
 msgid "Start"
 msgstr "Start"
 
-#: .\projects\templates\projects\project_manage.html:124
-#: .\requests\forms.py:22 .\requests\templates\requests\request_base.html:54
+#: .\projects\templates\projects\project_manage.html:124 .\requests\forms.py:22
+#: .\requests\templates\requests\request_base.html:54
 #: .\requests\templates\requests\request_base.html:222
 msgid "starttime"
 msgstr "Estimated date of begining"
@@ -331,8 +462,8 @@ msgstr "Estimated date of begining"
 msgid "Finish"
 msgstr "Finish"
 
-#: .\projects\templates\projects\project_manage.html:126
-#: .\requests\forms.py:23 .\requests\templates\requests\request_base.html:60
+#: .\projects\templates\projects\project_manage.html:126 .\requests\forms.py:23
+#: .\requests\templates\requests\request_base.html:60
 #: .\requests\templates\requests\request_base.html:224
 msgid "finishtime"
 msgstr "Estimated date of completion"
@@ -392,7 +523,7 @@ msgstr "There are %(results_count) results."
 
 #: .\requests\forms.py:20 .\requests\templates\requests\request_base.html:62
 msgid "estimate_time"
-msgstr "process time"
+msgstr "Process time (hr)"
 
 #: .\requests\forms.py:81
 msgid "actualtime"
@@ -751,11 +882,11 @@ msgstr "Language"
 #~ msgstr "Date (without time)"
 
 #~ msgid ""
-#~ "'%(value)s' value has an invalid format. It must be in YYYY-MM-DD HH:MM[:"
-#~ "ss[.uuuuuu]][TZ] format."
+#~ "'%(value)s' value has an invalid format. It must be in YYYY-MM-DD "
+#~ "HH:MM[:ss[.uuuuuu]][TZ] format."
 #~ msgstr ""
-#~ "'%(value)s' value has an invalid format. It must be in YYYY-MM-DD HH:MM[:"
-#~ "ss[.uuuuuu]][TZ] format."
+#~ "'%(value)s' value has an invalid format. It must be in YYYY-MM-DD "
+#~ "HH:MM[:ss[.uuuuuu]][TZ] format."
 
 #~ msgid ""
 #~ "'%(value)s' value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
@@ -774,11 +905,11 @@ msgstr "Language"
 #~ msgstr "Decimal number"
 
 #~ msgid ""
-#~ "'%(value)s' value has an invalid format. It must be in [DD] [HH:[MM:]]ss[."
-#~ "uuuuuu] format."
+#~ "'%(value)s' value has an invalid format. It must be in [DD] [HH:"
+#~ "[MM:]]ss[.uuuuuu] format."
 #~ msgstr ""
-#~ "'%(value)s' value has an invalid format. It must be in [DD] [HH:[MM:]]ss[."
-#~ "uuuuuu] format."
+#~ "'%(value)s' value has an invalid format. It must be in [DD] [HH:"
+#~ "[MM:]]ss[.uuuuuu] format."
 
 #~ msgid "Duration"
 #~ msgstr "Duration"
@@ -823,11 +954,11 @@ msgstr "Language"
 #~ msgstr "Text"
 
 #~ msgid ""
-#~ "'%(value)s' value has an invalid format. It must be in HH:MM[:ss[."
-#~ "uuuuuu]] format."
+#~ "'%(value)s' value has an invalid format. It must be in "
+#~ "HH:MM[:ss[.uuuuuu]] format."
 #~ msgstr ""
-#~ "'%(value)s' value has an invalid format. It must be in HH:MM[:ss[."
-#~ "uuuuuu]] format."
+#~ "'%(value)s' value has an invalid format. It must be in "
+#~ "HH:MM[:ss[.uuuuuu]] format."
 
 #~ msgid ""
 #~ "'%(value)s' value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is "
@@ -1402,11 +1533,11 @@ msgstr "Language"
 #~ msgstr "No %(verbose_name_plural)s available"
 
 #~ msgid ""
-#~ "Future %(verbose_name_plural)s not available because %(class_name)s."
-#~ "allow_future is False."
+#~ "Future %(verbose_name_plural)s not available because %"
+#~ "(class_name)s.allow_future is False."
 #~ msgstr ""
-#~ "Future %(verbose_name_plural)s not available because %(class_name)s."
-#~ "allow_future is False."
+#~ "Future %(verbose_name_plural)s not available because %"
+#~ "(class_name)s.allow_future is False."
 
 #~ msgid "Invalid date string '%(datestr)s' given format '%(format)s'"
 #~ msgstr "Invalid date string '%(datestr)s' given format '%(format)s'"

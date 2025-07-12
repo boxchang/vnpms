@@ -3,12 +3,12 @@ from django.contrib import admin
 from bases.models import Status, FormType
 from bugs.models import Bug
 from helpdesk.models import HelpdeskType
-from problems.models import Problem, Problem_reply, ProblemType
+from problems.models import Problem, Problem_reply, ProblemType, ProblemTypeList
 from projects.models import Project, Project_setting
 from requests.models import Request, Level
 from tests.models import Request_test, Request_test_item
 from assets.models import *
-from users.models import UserType
+from users.models import UserType, Plant
 
 
 @admin.register(Request_test)
@@ -28,7 +28,7 @@ class ProjectSettingAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'short_name', 'desc')
+    list_display = ('name', 'belong_to', 'short_name', 'desc')
 
 
 @admin.register(Request)
@@ -61,6 +61,9 @@ class ProblemAdmin(admin.ModelAdmin):
 class ProblemReplyAdmin(admin.ModelAdmin):
     list_display = ('problem_no', 'comment')
 
+@admin.register(ProblemTypeList)
+class ProblemTypeListAdmin(admin.ModelAdmin):
+    list_display = ('list_name', 'create_by')
 
 @admin.register(ProblemType)
 class ProblemTypeAdmin(admin.ModelAdmin):
@@ -110,6 +113,10 @@ class AssetAdmin(admin.ModelAdmin):
 @admin.register(AssetStatus)
 class AssetAdmin(admin.ModelAdmin):
     list_display = ('status_name',)
+
+@admin.register(Plant)
+class PlantAdmin(admin.ModelAdmin):
+    list_display = ('plant_code', 'plant_name')
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):

@@ -93,7 +93,7 @@ $(function(){
         url: '{% url 'problem_chart_grid_api' %}',
         type: 'post',
         dataType: 'json',
-        data: { 'label': label, 'start_date': $("#id_start_date").val(), "csrfmiddlewaretoken": "{{ csrf_token }}" },
+        data: { 'label': label, 'start_date': $("#id_start_date").val(), "csrfmiddlewaretoken": "{{ csrf_token }}", 'project': "{{ p }}" },
         success: function (data) {
             // 清空现有数据
             $("#grid").jqGrid('clearGridData');
@@ -111,11 +111,12 @@ $(function(){
     // Initialize empty grid
     $("#grid").jqGrid({
         datatype: 'local',  // 初始化为空表格
-        colNames: ['id', 'Issue DateTime', 'Title', 'Requester'],
+        colNames: ['id', 'Issue DateTime', 'Plant', 'Title', 'Requester'],
         colModel: [
             { name: 'id', index: 'id', width: 180, align: 'center', hidden: true },
             { name: 'problem_datetime', index: 'problem_datetime', width: 180, align: 'center' },
-            { name: 'title', index: 'title', width: 400 },
+            { name: 'plant__plant_code', index: 'plant__plant_code', width: 50, label: 'Plant' },
+            { name: 'title', index: 'title', width: 360 },
             { name: 'requester', index: 'requester', width: 180, align: 'center' },
         ],
         pager: '#pager',
@@ -138,7 +139,7 @@ $(function(){
     $("#button-id-search").on('click', function() {
         var _start_date = $("#id_start_date").val();
         var _status = $("#id_status").val()
-        $.post( "{% url 'problem_chart_api' %}", {'start_date': _start_date, 'status': _status, 'csrfmiddlewaretoken': '{{csrf_token}}'},function( results ) {
+        $.post( "{% url 'problem_chart_api' %}", {'project': "{{ p }}", 'start_date': _start_date, 'status': _status, 'csrfmiddlewaretoken': '{{csrf_token}}'},function( results ) {
             var data = {
               labels: results.labels,
               values: results.values

@@ -10,8 +10,7 @@
       <div class="row">
             <div id="div_id_files" class="form-group col-2">
                 <label for="id_files" class="form-control-label">{% trans "file" %} 1</label>
-                <input name="files1" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint,
-text/plain, application/pdf, image/*" class="clearablefileinput" id="id_files" type="file">
+                <input name="files1" class="clearablefileinput" id="id_files" type="file">
             </div>
             <div id="div_id_description" class="form-group col-10">
                 <label for="id_description" class="form-control-label ">{% trans "desc" %}：</label>
@@ -21,7 +20,7 @@ text/plain, application/pdf, image/*" class="clearablefileinput" id="id_files" t
       <div class="row">
             <div id="div_id_files" class="form-group col-2">
                 <label for="id_files" class="form-control-label">{% trans "file" %} 2</label>
-                <input name="files2" accept=".pdf" class="clearablefileinput" id="id_files" type="file">
+                <input name="files2" class="clearablefileinput" id="id_files" type="file">
             </div>
             <div id="div_id_description" class="form-group col-10">
                 <label for="id_description" class="form-control-label ">{% trans "desc" %}：</label>
@@ -31,6 +30,6 @@ text/plain, application/pdf, image/*" class="clearablefileinput" id="id_files" t
   </div>
   <div class="card-footer text-center">
     <button type="submit" class="btn btn-primary" id="send">{% trans "save" %}</button>
-    <input type=button class="btn btn-primary" value="Cancel" onClick="javascript:history.go(-1);">
+      <input type="button" class="btn btn-secondary" value="{% trans 'Cancel' %}" onClick="javascript:history.go(-1);">
   </div>
 </form>

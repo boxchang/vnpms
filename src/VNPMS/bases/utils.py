@@ -7,6 +7,9 @@ from bases.models import DataIndex, FormType, Status
 from inventory.models import FormStatus
 from projects.models import Project
 from users.models import CustomUser
+import httpx
+from httpx import RequestError
+from VNPMS.settings.base import WECOM_APP_PROBLEM
 
 
 def get_all_formtype():
@@ -79,7 +82,7 @@ def get_home_url(request):
         return reverse('login')
 
 
-def get_status_dropdown(o_request):
+def get_status_dropdown(o_id, o_status):
     tmp = ""
     status_html = """<div class="btn-group dropdown">
                       <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -89,19 +92,19 @@ def get_status_dropdown(o_request):
                         {tmp}
                       </div>
                     </div>
-                    <input type="hidden" name="request_id" id="request_id" value={request_id} \>
+                    <input type="hidden" name="o_id" id="o_id" value={o_id} \>
                     <input type="hidden" name="status_id" id="status_id" \>
                     """
 
     status = Status.objects.all()
     for s in status:
         active = ""
-        if s == o_request.status:
+        if s == o_status:
             active = "active"
         tmp += "<a class=\"dropdown-item {active}\" href=\"#\" onclick=\"change_status('{status_value}');\">{status_name}</a>"
         tmp = tmp.format(active=active, status_value=s.id, status_name=s.status_en)
 
-    status_html = status_html.format(title=_("Update Status"), tmp=tmp, request_id=o_request.id)
+    status_html = status_html.format(title=_("Update Status"), tmp=tmp, o_id=o_id)
     return status_html
 
 
@@ -138,7 +141,26 @@ def get_ip():
     s.close()
     return ip
 
+
 def get_batch_no():
     now = datetime.datetime.now()
     batch_no = now.strftime("%y%m%d%H%M%S")
     return batch_no
+
+
+def send_wecom_message(message: str):
+    headers = {'Content-Type': 'application/json; charset=utf-8'}
+    data = {
+        "msgtype": "markdown",
+        "markdown": {
+            "content": message,
+        }
+    }
+
+    try:
+        response = httpx.post(WECOM_APP_PROBLEM, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json()
+    except RequestError as e:
+        return {"error": str(e)}
+

@@ -57,6 +57,40 @@
 {% block js %}
 <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const plantSelect = document.getElementById('id_plant');
+        const deptSelect = document.getElementById('id_unit');
+
+        if (plantSelect) {
+            plantSelect.addEventListener('change', function () {
+                const plantId = this.value;
+
+                fetch(`{% url 'load_depts' %}?plant_id=${plantId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear existing options
+                        deptSelect.innerHTML = '';
+
+                        // Add default option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.text = '---------';
+                        defaultOption.value = '';
+                        deptSelect.add(defaultOption);
+
+                        data.depts.forEach(function (dept) {
+                            const option = document.createElement('option');
+                            option.value = dept.id;
+                            option.text = dept.unitName;
+                            deptSelect.add(option);
+                        });
+
+                        deptSelect.disabled = false;
+                    });
+            });
+        }
+    });
+</script>
 {% endblock js %}
 
 {% block ready %}

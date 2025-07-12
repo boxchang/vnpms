@@ -5,11 +5,14 @@ from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
 
+from problems.models import ProblemTypeList
+
 
 class Project(models.Model):
     name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=3)
     desc = RichTextUploadingField(null=True, blank=True)
+    belong_to = models.ForeignKey(ProblemTypeList, null=True, blank=True, related_name='project_type_list', on_delete=models.DO_NOTHING)
     create_at = models.DateTimeField(auto_now_add=True, editable=True)
     create_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='project_create_dt',
                                   on_delete=models.DO_NOTHING)

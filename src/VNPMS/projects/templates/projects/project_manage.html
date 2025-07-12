@@ -22,9 +22,9 @@
                     aria-selected="false">{% trans "problem" %}</a>
 
             </div>
-            <a class="btn btn-success m-1" href="{% url "request_create" %}?t={{ form_type.tid }}&p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "request_create" %}</a>
-            <a class="btn btn-success m-1" href="{% url "request_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>需求紀錄</a>-
-            <a class="btn btn-success m-1" href="{% url "problem_create" %}?p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "problem_create" %}</a>
+            <a class="btn btn-success m-1" href="{% url "request_create" %}?t={{ form_type.tid }}&p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>&nbsp;{% trans "Request Create" %}</a>
+            <a class="btn btn-success m-1" href="{% url "request_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>&nbsp;{% trans "Requirement Record" %}</a>-
+            <a class="btn btn-success m-1" href="{% url "problem_create" %}?p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>&nbsp;{% trans "Problem Create" %}</a>
         </nav>
         <div class="tab-content" id="nav-tabContent2">
             <div class="tab-pane fade show active" id="project1-require-index" role="tabpanel"
@@ -86,9 +86,9 @@ $(function(){
             field: 'sub_request', title:'{% trans "Sub" %}', titleTooltip: '{% trans "subrequire" %}', sortable:true, width: '5%', align:'center'
         }, {
             field: 'id', title: '鍵值', visible:false
-        }]
+        }];
 
-createBootstrapTable("#request_table",data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/requests", "/api/requests/")
+createBootstrapTable("#request_table",data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/requests", "/api/requests/");
 
 
     //PROBLEM
@@ -112,7 +112,7 @@ createBootstrapTable("#request_table",data_column,{{ page_num }},"/api/projects/
             field: 'update_at', title: '{% trans "update_at" %}', width: '15%', align: 'center'
         }, {
             field: 'pk', title: '鍵值', visible:false
-        }]
+        }];
 
 
 createSimpleTable("#problem_table",problem_data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/problems");

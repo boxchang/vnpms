@@ -39,7 +39,8 @@ class CustomUserChangeForm(UserChangeForm):
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML, Field
-from .models import CustomUser
+from .models import CustomUser, Plant, Unit
+
 
 class CurrentCustomUserForm(forms.ModelForm):
     user_type = forms.ModelChoiceField(label=_('user_type'), queryset=UserType.objects.all(), widget=forms.Select(
@@ -50,12 +51,11 @@ class CurrentCustomUserForm(forms.ModelForm):
     emp_no = forms.CharField(label=_('emp_no'), widget=forms.TextInput(attrs={'placeholder': _('emp_no')}))
     sap_emp_no = forms.CharField(label=_('sap_emp_no'), widget=forms.TextInput(attrs={'placeholder': _('sap_emp_no')}), required=False)
     username = forms.CharField(label=_('name'))
-    unit = forms.ModelChoiceField(label=_('dept'), queryset=Unit.objects.all(), widget=forms.Select(
-        attrs={'class': "form-select"}))
+    plant = forms.ModelChoiceField(required=False, label=_("Plant"), queryset=Plant.objects.all())
 
     class Meta:
         model = CustomUser
-        fields = ('emp_no', 'username', 'last_name', 'first_name', 'user_type', 'email',
+        fields = ('emp_no', 'username', 'user_type', 'email', 'plant',
                   'is_active', 'password1', 'password2', 'username', 'sap_emp_no', 'unit')
 
     def __init__(self, *args, submit_title=_('save'), **kwargs):
@@ -76,10 +76,9 @@ class CurrentCustomUserForm(forms.ModelForm):
                 css_class='row'
             ),
             Div(
-                Div('unit', css_class="col-sm-3"),
-                Div('username', css_class="col-sm-3"),
-                Div('last_name', css_class="col-sm-3"),
-                Div('first_name', css_class="col-sm-3"),
+                Div('plant', css_class="col-sm-4"),
+                Div('unit', css_class="col-sm-4"),
+                Div('username', css_class="col-sm-4"),
                 css_class='row'
             ),
             Div(

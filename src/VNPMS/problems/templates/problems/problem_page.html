@@ -11,57 +11,386 @@
 {% block content %}
     <div class="row">
         <div class="col">
-            <a class="btn btn-success m-1" href="{% url "problem_create" %}?p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "problem_create" %}</a>
-            <a class="btn btn-success m-1" href="{% url "problem_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>問題紀錄</a>
-            <a class="btn btn-success m-1" href="{% url "problem_chart" %}?p={{ project_form.id }}" role="button"><i class="fas fa-chart-bar"></i>問題分析</a>
+            <a class="btn btn-success m-1" href="{% url "problem_create" %}?p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>&nbsp;{% trans "problem_create" %}</a>
+            <a class="btn btn-success m-1" href="{% url "problem_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>&nbsp;{% trans "Problem Log" %}</a>
+            <a class="btn btn-success m-1" href="{% url "problem_chart" %}?p={{ project_form.id }}" role="button"><i class="fas fa-chart-bar"></i>&nbsp;{% trans "Problem Analysis" %}</a>
         </div>
         <div class="col" style="text-align: right">
-            <a class="btn btn-success m-1" href="{% url "request_page" pk %}" role="button">REQUEST</a>
-            <a class="btn btn-success m-1" href="{% url "problem_page" pk %}" role="button">PROBLEM</a>
+            <a class="btn btn-outline-primary m-1" href="{% url "request_page" pk %}" role="button">{% trans "REQUEST" %}</a>
+            <a class="btn btn-outline-danger m-1" href="{% url "problem_page" pk %}" role="button">{% trans "PROBLEM" %}</a>
         </div>
     </div>
+    {% if user.user_type_id == 1 %}
+            <table class="table" id="assign_problem_table" data-pagination="true" data-side-pagination="client"></table>
+    {% endif %}
     <table class="table" id="problem_table" data-pagination="true" data-side-pagination="client"></table>
+    {{ assigning_users|json_script:"assigningUsersData" }}
 {% endblock content %}
 
 {% block js %}
-<script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
-<link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
-<script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
-<script src="{% static 'bootstrap_table/table.js' %}"></script>
-<script>
-$(function(){
-    //PROBLEM
-    function urlPFormatter(value, row, index) {
-        return "<a href='/problems/detail/"+row.id+"'>"+value+"</a>";
-    }
+    <script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">
+    <script src="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.js' %}"></script>
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'bootstrap-table-develop\src\extensions\filter-control\bootstrap-table-filter-control.css' %}">
+    <script src="{% static 'bootstrap_table/table.js' %}"></script>
 
-    var problem_data_column = [{
-            field: 'problem_no', title: '{% trans "problem_no" %}', width: '10%', formatter: urlPFormatter
-        }, {
-            field: 'title', title: '{% trans "title" %}', width: '35%'
-        }, {
-            field: 'reply_num', title: '{% trans "reply_num" %}', width: '5%', align: 'center'
-        }, {
-            field: 'create_by.username', title: '{% trans "create_by" %}', width: '10%', align: 'center'
-        }, {
-            field: 'create_at', title: '{% trans "create_at" %}', width: '15%', align: 'center'
-        }, {
-            field: 'update_by.username', title: '{% trans "update_by" %}', width: '10%', align: 'center'
-        }, {
-            field: 'update_at', title: '{% trans "update_at" %}', width: '15%', align: 'center'
-        }, {
-            field: 'pk', title: '鍵值', visible:false
-        }]
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <script>
+        $(function () {
+            //PROBLEM
+            function urlPFormatter(value, row, index) {
+                return "<a href='/problems/detail/" + row.id + "'>" + value + "</a>";
+            }
 
-createSimpleTable("#problem_table",problem_data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/problems");
+            var problem_data_column = [
+                {field: 'problem_no', title: '{% trans "problem_no" %}', width: '10%', formatter: urlPFormatter},
+                {field: 'title', title: '{% trans "title" %}', width: '35%'},
+                {field: 'problem_type', title: '{% trans "reply_num" %}', width: '5%', align: 'center'},
+                {field: 'create_by.username', title: '{% trans "create_by" %}', width: '10%', align: 'center'},
+                {field: 'create_at', title: '{% trans "create_at" %}', width: '15%', align: 'center'},
+                {field: 'update_by.username', title: '{% trans "update_by" %}', width: '10%', align: 'center'},
+                {field: 'update_at', title: '{% trans "update_at" %}', width: '15%', align: 'center'},
+                {field: 'pk', title: '鍵值', visible: false}
+            ];
 
+            var assign_problem_data_column = [
+                {field: 'problem_no', title: '{% trans "problem_no" %}', width: '10%', formatter: urlPFormatter},
+                {field: 'title', title: '{% trans "title" %}', width: '35%'},
+                {field: 'requester', title: '{% trans "Requester" %}', width: '10%', align: 'center'},
+                {field: 'expected_datetime', title: '{% trans "Expected Datetime" %}', width: '10%', align: 'center'},
+                {field: 'create_by.username', title: '{% trans "create_by" %}', width: '10%', align: 'center'},
+                {field: 'create_at', title: '{% trans "create_at" %}', width: '10%', align: 'center'},
+                {
+                    field: 'assign_user',
+                    title: 'Assign To',
+                    width: '15%',
+                    align: 'center',
+                    formatter: assignSelectFormatter
+                }
+            ];
 
+            createSimpleTable("#problem_table", problem_data_column, {{ page_num }}, "/api/projects/{{ pk }}/{{ user.id }}/problems");
+            createSimpleTable("#assign_problem_table", assign_problem_data_column, {{ page_num }}, "/api/projects/{{ pk }}/{{ user.id }}/problems?problem_status=wait_for_assign", {
+                noMatchesMessage: 'There is no new problem to assign.',
+                onPostBody: function () {
+                    $('.assign-select').select2({
+                        placeholder: '{% trans "Please assign" %}',
+                        allowClear: true,
+                        width: 'resolve'
+                    });
+                }
+            });
 
+            $('.assign-select').select2({
+                placeholder: '{% trans "Please assign" %}',
+                allowClear: true,
+                width: 'resolve'
+            });
+        });
 
-});
+        function assignSelectFormatter(value, row, index) {
+            try {
+                const user_data = JSON.parse(`{{ group_users_json|safe }}`);
+                let options = `<option value="0">{% trans "Please assign" %}</option>`;
+                options += user_data.map(user => {
+                    const selected = (value && value.id === user.id) ? 'selected' : '';
+                    return `<option value="${user.id}" ${selected}>${user.username}</option>`;
+                }).join("");
 
+                return `
+                <select class="modern-select assign-select select2"
+                        data-problem-id="${row.id}"
+                        style="width: 100%; min-width: 150px;"
+                        aria-label="Assign problem to user">
+                    ${options}
+                </select>
+            `;
 
-</script>
+            } catch (e) {
+                console.error("Error in assignSelectFormatter:", e);
+                return `
+                <select class="modern-select assign-select"
+                        data-problem-id="${row.id}"
+                        aria-label="Problem assignment dropdown"
+                        style="width: 100%; min-width: 150px;">
+                    <option value="0">{% trans "Please assign" %}</option>
+                    <option value="">Error loading users</option>
+                </select>
+            `;
+            }
+        }
+
+        async function assignUser(problemId, userId, selectElement) {
+            if (!problemId || !selectElement) {
+                console.error('Invalid parameters for assignUser');
+                return;
+            }
+
+            try {
+                selectElement.disabled = true;
+                const formData = new FormData();
+                formData.append('assign_to', userId);
+
+                const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (csrfTokenElement) {
+                    formData.append('csrfmiddlewaretoken', csrfTokenElement.value);
+                }
+
+                const response = await fetch(`/problems/assign/${problemId}/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const assignedUser = data.assigned_user;
+                    let option = Array.from(selectElement.options).find(opt => opt.value === String(assignedUser.id));
+                    if (!option) {
+                        option = document.createElement('option');
+                        option.value = assignedUser.id;
+                        selectElement.appendChild(option);
+                    }
+                    option.textContent = assignedUser.username;
+                    option.selected = true;
+
+                    alert('User assigned successfully');
+                } else {
+                    throw new Error(data.message || 'Assignment failed');
+                }
+            } catch (error) {
+                console.error('Assignment error:', error);
+                alert(error.message || 'Failed to assign user');
+                if (selectElement.dataset.previousValue) {
+                    $(selectElement).val(selectElement.dataset.previousValue).trigger('change.select2');
+                }
+            } finally {
+                selectElement.disabled = false;
+            }
+        }
+
+        // Use delegated events for dynamically created Select2 dropdowns
+        $(document).on('select2:opening', '.assign-select', function () {
+            this.dataset.previousValue = $(this).val();
+        });
+
+        $(document).on('change', '.assign-select', function () {
+            const problemId = $(this).data('problem-id');
+            const userId = $(this).val();
+
+            if (userId === "0") {
+                if (this.dataset.previousValue) {
+                    $(this).val(this.dataset.previousValue).trigger('change.select2');
+                }
+                return;
+            }
+
+            assignUser(problemId, userId, this);
+        });
+    </script>
+
+    <style>
+        .modern-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            width: 100%;
+            font-size: 14px;
+            color: #2d3748;
+            cursor: pointer;
+        }
+
+        .modern-select:hover {
+            border-color: #a0aec0;
+        }
+
+        .modern-select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+            outline: none;
+        }
+
+        /* Modern Options Styling */
+        option {
+            padding: 10px 15px;
+            background: #fff;
+            color: #2d3748;
+            transition: all 0.2s;
+        }
+
+        option:hover {
+            background-color: #ebf8ff !important;
+            color: #2b6cb0;
+        }
+
+        option:checked {
+            background-color: #bee3f8;
+            color: #2b6cb0;
+            font-weight: 500;
+        }
+
+        .dropdown ul {
+            margin: 0.8rem;
+        }
+
+        .group-toggle {
+            padding: 0.4rem 0.6rem;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .group-toggle:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown li {
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+        }
+
+        .dropdown li:hover {
+            background-color: #f1f1f1;
+        }
+
+        input.form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #80bdff;
+        }
+
+        .collapse li:hover {
+            background-color: white;
+        }
+
+        .dynamic-user-dropdown .dropdown-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown.dynamic-user-dropdown ul {
+            padding: 0 !important;
+        }
+
+        .dropdown.dynamic-user-dropdown ul li:hover {
+            border-radius: 5px;
+            background-color: #f1f1f1;
+        }
+
+        .dropdown ul {
+            margin: 0.8rem;
+        }
+
+        .dropdown ul ul {
+            list-style: none;
+            border-left: solid 2px grey;
+            margin: 0.8rem;
+            padding-left: 1rem;
+        }
+
+        .dropdown ul ul li {
+            margin: 0 0.1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+        }
+
+        .dropdown ul ul li:hover {
+            background-color: white;
+        }
+
+        .group-toggle .arrow {
+            transition: transform 0.2s ease;
+            font-size: 0.8rem; /* smaller size */
+            margin-left: 0.5rem;
+        }
+
+        /* When the collapse is shown, rotate the arrow */
+        .group-toggle[aria-expanded="true"] .arrow {
+            transform: rotate(180deg); /* ▼ becomes ▲ */
+        }
+
+        input.form-control[readonly] {
+            background-color: #fff !important; /* or use your desired color */
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .assigned-success {
+            border: 2px solid #28a745 !important;
+            background-color: #e6ffe6 !important;
+            transition: background-color 0.3s, border 0.3s;
+        }
+
+        .row-assigned-success {
+            background-color: #ffe99a !important;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Makes Select2 match Bootstrap styles */
+        .select-field {
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        /* custom select search field */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: auto !important;
+            min-height: 38px;
+            padding: 6px 12px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 4px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 34px !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            padding-left: 0 !important;
+            text-align: left;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: black;
+            font-weight: normal;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            outline: none !important;
+            border-radius: 2px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 24px !important;
+        }
+    </style>
 {% endblock %}

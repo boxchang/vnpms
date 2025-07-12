@@ -11,12 +11,12 @@
 {% block content %}
     <div class="row">
         <div class="col">
-            <a class="btn btn-success m-1" href="{% url "request_create" %}?t={{ form_type.tid }}&p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>{% trans "request_create" %}</a>
-            <a class="btn btn-success m-1" href="{% url "request_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>需求紀錄</a>
+            <a class="btn btn-success m-1" href="{% url "request_create" %}?t={{ form_type.tid }}&p={{ project_form.id }}" role="button"><i class="fas fa-plus"></i>&nbsp{% trans "request_create" %}</a>
+            <a class="btn btn-success m-1" href="{% url "request_history" %}?p={{ project_form.id }}" role="button"><i class="fas fa-book"></i>&nbsp{% trans "Requirement Log" %}</a>
         </div>
         <div class="col" style="text-align: right">
-            <a class="btn btn-success m-1" href="{% url "request_page" pk %}" role="button">REQUEST</a>
-            <a class="btn btn-success m-1" href="{% url "problem_page" pk %}" role="button">PROBLEM</a>
+            <a class="btn btn-outline-primary m-1" href="{% url "request_page" pk %}" role="button">{% trans "REQUEST" %}</a>
+            <a class="btn btn-outline-danger m-1" href="{% url "problem_page" pk %}" role="button">{% trans "PROBLEM" %}</a>
         </div>
     </div>
     <table class="table" id="request_table" data-pagination="true" data-side-pagination="client"></table>
@@ -59,7 +59,7 @@ $(function(){
             field: 'sub_request', title:'{% trans "Sub" %}', titleTooltip: '{% trans "subrequire" %}', sortable:true, width: '5%', align:'center'
         }, {
             field: 'id', title: '鍵值', visible:false
-        }]
+        }];
 
 createBootstrapTable("#request_table",data_column,{{ page_num }},"/api/projects/{{ pk }}/{{ user.id }}/requests", "/api/requests/")
 

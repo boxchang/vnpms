@@ -14,6 +14,7 @@ from projects.forms import ProjectForm, ProjectSettingForm
 from projects.models import Project, Project_setting
 from requests.models import Request
 from datetime import date
+from users.models import Plant
 
 
 # def index(request):
@@ -119,6 +120,19 @@ def project_setting(request):
     except Project_setting.DoesNotExist:
         raise Http404
 
+
+    if request.user.user_type.type_name == 'Requester':
+        setting, created = Project_setting.objects.get_or_create(user=request.user)
+
+        if created:
+            # short name VNI means Infrastructure
+            default_project = Project.objects.get(short_name='VNI')
+            setting.default = default_project
+            setting.save()
+            setting.project.set([default_project])
+
+        return redirect('problem_feed')
+
     if request.method == 'POST':
         form = ProjectSettingForm(request.POST, request.FILES, instance=data)
         if form.is_valid():
@@ -188,6 +202,7 @@ def search(request):
 @login_required
 def pms_home(request):
 
+
     # 在index就有判斷使用者設定，理論上這邊一定會有值
     obj = CustomUser.objects.get(pk=request.user.pk)
     if obj.setting_user.first():
@@ -196,18 +211,68 @@ def pms_home(request):
         return redirect(reverse('project_setting'))
     assert obj != None, u'user setting can\'t get at bases\\views.py'
 
+    if request.user.user_type.type_name == 'Requester':
+        return redirect('problem_feed')
+
     # project_setting = Project_setting.objects.user.filter().first()
     project_setting = Project_setting.objects.get(user=obj)
     projects = project_setting.project.all()
 
-    problems = Problem.objects.filter(project__in=projects).order_by('-create_at')[:40]
-    status = Status.objects.filter(status_en__in=['Wait', 'On-Going', 'Done', 'Pending'])
+    problems = Problem.objects.filter(project__in=projects).order_by('-create_at')
+    status = Status.objects.filter(status_en__in=['Wait', 'On-Going', 'Pending', 'Wait For Assign'])
+    done_status = Status.objects.get(status_en='Done')
 
     mode = request.GET.get('filter', None)
     if mode:
-        requests = Request.objects.filter(project__in=projects, status__in=status, owner_id=obj.id).order_by('-create_at')
+        requests = Request.objects.filter(
+            project__in=projects,
+            status__in=status,
+            owner_id=obj.id
+        ).order_by('-create_at')
+        problems = Problem.objects.filter(
+            project__in=projects,
+            problem_status__in=status,
+            owner_id=obj.id
+        ).order_by('-create_at')
+        done_requests = Request.objects.filter(
+            project__in=projects,
+            status=done_status,
+            owner_id=obj.id
+        ).order_by('-create_at')[:20]
+        done_problems = Problem.objects.filter(
+            project__in=projects,
+            problem_status=done_status,
+            owner_id=obj.id
+        ).order_by('-create_at')[:20]
     else:
-        requests = Request.objects.filter(project__in=projects, status__in=status).order_by('-create_at')
+        requests = Request.objects.filter(
+            project__in=projects,
+            status__in=status
+        ).order_by('-create_at')
+        problems = Problem.objects.filter(
+            project__in=projects,
+            problem_status__in=status
+        ).order_by('-create_at')
+        done_requests = Request.objects.filter(
+            project__in=projects,
+            status=done_status
+        ).order_by('-create_at')[:20]
+        done_problems = Problem.objects.filter(
+            project__in=projects,
+            problem_status=done_status
+        ).order_by('-create_at')[:20]
+
+    # Modify `problem.plant` to be plant_code if it’s a digit
+    for problem in problems:
+        if problem.plant and str(problem.plant).isdigit():
+            try:
+                plant = Plant.objects.get(pk=problem.plant)
+                problem.plant = plant.plant_code
+            except Plant.DoesNotExist:
+                pass
+
+    news_feed = list(requests) + list(problems) + list(done_requests) + list(done_problems)
+    news_feed.sort(key=lambda x: x.create_at, reverse=True)
 
     for req in requests:
         if req.due_date and req.start_date:

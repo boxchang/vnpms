@@ -1,14 +1,13 @@
 {% extends 'bases/menu_base.html' %}
 
 {% load crispy_forms_tags %}
-
 {% load static %}
 {% load i18n %}
 {% block title %}PMS{% endblock %}
 {% block css %}
     <style>
-        #Wait, #On-Going, #Finished, #pendding { list-style-type: none; margin: 0; float: left; padding: 5px; width: 143px;}
-        #Wait div, #On-Going div, #Finished div, #pendding div { margin: 5px; padding: 5px; font-size: 1em; width: 120px;}
+        #Wait, #On-Going, #Finished, #pending { list-style-type: none; margin: 0; float: left; padding: 5px; width: 143px;}
+        #Wait div, #On-Going div, #Finished div, #pending div { margin: 5px; padding: 5px; font-size: 1em; width: 120px;}
         .card-body{
             padding: 0px;
             border: thin;
@@ -18,13 +17,17 @@
             background-color: #ccf2ff;
         }
 
+        th {
+            min-width: 80px;
+        }
+
     .droptrue{
         width:100%;
         max-height:550px;
         overflow: auto;
     }
 
-    #Wait div .card-header, #On-Going div .card-header, #Finished div .card-header, #pendding div .card-header {
+    #Wait div .card-header, #On-Going div .card-header, #Finished div .card-header, #pending div .card-header {
         width: 97%;
         display: flex;
         justify-content: space-between;
@@ -32,7 +35,7 @@
     }
 
     @media (max-width: 768px) {
-        #Wait div .card-header, #On-Going div .card-header, #Finished div .card-header, #pendding div .card-header {
+        #Wait div .card-header, #On-Going div .card-header, #Finished div .card-header, #pending div .card-header {
             {#flex-direction: row;#}
             {#justify-content: space-between;#}
         }
@@ -51,12 +54,12 @@
         <div class="card-header" style="background-color: #e0e0e0">
             <div class="row" style="justify-content: space-between">
                 <div class="col-4" style="display: flex; align-items: center; gap: 20px">
-                    <h3 style="margin: 0; padding: 0;">Dashboard</h3>
-                    <button type="button" class="btn btn-primary" id="dashboard_filter_btn">My Task</button>
+                    <h3 style="margin: 0; padding: 0;">{% trans "Dashboard" %}</h3>
+                    <button type="button" class="btn btn-primary" id="dashboard_filter_btn">{% trans "My Task" %}</button>
                 </div>
                 <div class="col-8 text-right">
-                    <a href="{% url "helpdesk_search" %}" role="button" data-toggle="tooltip" data-placement="bottom" title="knowledge management"><i class="fa fa-book fa-2x pr-2"></i></a>
-                    <a href="{% url "request_page" pk %}" role="button" data-toggle="tooltip" data-placement="bottom" title="the detail of projects"><i class="far fa-credit-card fa-2x"></i></a>
+                    <a href="{% url "helpdesk_search" %}" role="button" data-toggle="tooltip" data-placement="bottom" title="{% trans 'knowledge management' %}"><i class="fa fa-book fa-2x pr-2"></i></a>
+                    <a href="{% url "request_page" pk %}" role="button" data-toggle="tooltip" data-placement="bottom" title="{% trans 'the detail of projects' %}"><i class="far fa-credit-card fa-2x"></i></a>
                 </div>
             </div>
         </div>
@@ -64,32 +67,65 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="card">
-                        <div class="card-header big">{% trans "waiting" %}</div>
+                        <div class="card-header big">{% trans "Assigning" %}</div>
                         <div class="card-body" id="body1">
                             <div id="Wait" class="droptrue" data-code="1" style="width:100%;">
-                                {% for o_request in requests %}
-                                    {% if o_request.status.status_en == 'Wait' %}
-                                        <div class="card" style="width:97%;background-color: #ffffe6;" data-position="Wait" data-num="{{ o_request.request_no }}">
-                                            <div class="card-header" style="width:97%">
-                                                <h6 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h6>
-                                                <h6 class="card-title {% if o_request.duration < 1 %}text-danger fw-bold{% endif %}">
-                                                    {{ o_request.due_date|date:"d/m/Y" }}
-                                                </h6>
+                                {% for item in news_feed %}
+                                    {% if item.type_name == 'Request' %}
+                                        {# Render Request card #}
+                                        {% if item.status.status_en == 'Wait' %}
+                                            <div class="card" style="width:97%;background-color: #ffffe6;"
+                                                 data-position="Wait" data-num="{{ item.request_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'request_detail' pk=item.pk %}">{{ item.request_no }}</a>
+                                                    </h6>
+                                                    <h6 class="card-title {% if item.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                        {{ item.due_date|date:"d/m/Y" }}
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.request_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.request_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="card-body" style="width:97%;">
-                                                <span>
-                                                    {{ o_request.title }}
-                                                </span>
-                                                <span class="align-bottom" style="float:right">
-                                                    {% if o_request.owner.shot %}
-                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% else %}
-                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% endif %}
-                                                </span>
-                                            </div>
+                                        {% endif %}
 
-                                        </div>
+                                    {% elif item.type_name == 'Problem' %}
+                                        {# Render Problem card #}
+                                        {% if item.problem_status.status_en == 'Wait For Assign' %}
+                                            <div class="card" style="width:97%;background-color: #fff0f0;"
+                                                 data-position="Wait" data-num="{{ item.problem_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'problem_detail' pk=item.pk %}">{{ item.problem_no }}</a>
+                                                    </h6>
+                                                    <h6 class="card-title {% if item.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                        {{ item.due_date|date:"d/m/Y" }}
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.problem_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.problem_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -101,28 +137,62 @@
                         <div class="card-header big">{% trans "on_going" %}</div>
                         <div class="card-body">
                             <div id="On-Going" class="droptrue" style="width:100%;" data-code="2">
-                                {% for o_request in requests %}
-                                    {% if o_request.status.status_en == 'On-Going' %}
-                                        <div class="card" style="width:97%;background-color: #ffffe6;" data-position="On-Going" data-num="{{ o_request.request_no }}">
-                                            <div class="card-header" style="width:97%">
-                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
-                                                <h7 class="card-title {% if o_request.duration < 1 %}text-danger fw-bold{% endif %}">
-                                                    {{ o_request.due_date|date:"d/m/Y" }}
-                                                </h7>
+                                {% for item in news_feed %}
+                                    {% if item.type_name == 'Request' %}
+                                        {# Render Request card #}
+                                        {% if item.status.status_en == 'On-Going' %}
+                                            <div class="card" style="width:97%;background-color: #ffffe6;"
+                                                 data-position="Wait" data-num="{{ item.request_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'request_detail' pk=item.pk %}">{{ item.request_no }}</a>
+                                                    </h6>
+                                                    <h6 class="card-title {% if item.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                        {{ item.due_date|date:"d/m/Y" }}
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.request_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.request_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="card-body" style="width:97%;">
-                                                <span>
-                                                    {{ o_request.title }}
-                                                </span>
-                                                <span class="align-bottom" style="float:right">
-                                                    {% if o_request.owner.shot %}
-                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% else %}
-                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% endif %}
-                                                </span>
+                                        {% endif %}
+
+                                    {% elif item.type_name == 'Problem' %}
+                                        {# Render Problem card #}
+                                        {% if item.problem_status.status_en == 'On-Going' %}
+                                            <div class="card" style="width:97%;background-color: #fff0f0;"
+                                                 data-position="Wait" data-num="{{ item.problem_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'problem_detail' pk=item.pk %}">{{ item.problem_no }}</a>
+                                                    </h6>
+                                                    <h6 class="card-title {% if item.duration < 1 %}text-danger fw-bold{% endif %}">
+                                                        {{ item.due_date|date:"d/m/Y" }}
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.problem_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.problem_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -134,25 +204,56 @@
                         <div class="card-header big">{% trans "finished" %}</div>
                         <div class="card-body">
                             <div id="Finished" class="droptrue" style="width:100%;" data-code="4">
-                                {% for o_request in requests %}
-                                    {% if o_request.status.status_en == 'Done' %}
-                                        <div class="card" style="width:97%;background-color: #ffffe6;"data-position="Finished" data-num="{{ o_request.request_no }}">
-                                            <div class="card-header" style="width:97%; text-align: left">
-                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                {% for item in news_feed %}
+                                    {% if item.type_name == 'Request' %}
+                                        {# Render Request card #}
+                                        {% if item.status.status_en == 'Done' %}
+                                            <div class="card" style="width:97%;background-color: #ffffe6;"
+                                                 data-position="Wait" data-num="{{ item.request_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'request_detail' pk=item.pk %}">{{ item.request_no }}</a>
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.request_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.request_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="card-body" style="width:97%;">
-                                                <span>
-                                                    {{ o_request.title }}
-                                                </span>
-                                                <span class="align-bottom" style="float:right">
-                                                    {% if o_request.owner.shot %}
-                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% else %}
-                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% endif %}
-                                                </span>
+                                        {% endif %}
+
+                                    {% elif item.type_name == 'Problem' %}
+                                        {# Render Problem card #}
+                                        {% if item.problem_status.status_en == 'Done' %}
+                                            <div class="card" style="width:97%;background-color: #fff0f0;"
+                                                 data-position="Wait" data-num="{{ item.problem_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'problem_detail' pk=item.pk %}">{{ item.problem_no }}</a>
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.problem_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.problem_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -165,25 +266,56 @@
                         <div class="card-header big">{% trans "pending" %}</div>
                         <div class="card-body">
                             <div id="pending" class="droptrue" style="width:100%;" data-code="5">
-                                {% for o_request in requests %}
-                                    {% if o_request.status.status_en == 'Pending' %}
-                                        <div class="card" style="width:97%;background-color: #ffffe6;" data-position="pendding" data-num="{{ o_request.request_no }}">
-                                            <div class="card-header" style="width:97%; text-align: left">
-                                                <h7 class="card-title"><a href="{% url 'request_detail' pk=o_request.pk %}">{{ o_request.request_no }}</a></h7>
+                                {% for item in news_feed %}
+                                    {% if item.type_name == 'Request' %}
+                                        {# Render Request card #}
+                                        {% if item.status.status_en == 'Pending' %}
+                                            <div class="card" style="width:97%;background-color: #ffffe6;"
+                                                 data-position="Wait" data-num="{{ item.request_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'request_detail' pk=item.pk %}">{{ item.request_no }}</a>
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.request_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.request_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="card-body" style="width:97%;">
-                                                <span>
-                                                    {{ o_request.title }}
-                                                </span>
-                                                <span class="align-bottom" style="float:right">
-                                                    {% if o_request.owner.shot %}
-                                                        <img src="{{ o_request.owner.shot.url }}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% else %}
-                                                        <img src="{% static 'base/default_shot.png' %}" alt="{{ o_request.request_no }}" class="rounded-circle" style="height:35px;width:35px;">
-                                                    {% endif %}
-                                                </span>
+                                        {% endif %}
+
+                                    {% elif item.type_name == 'Problem' %}
+                                        {# Render Problem card #}
+                                        {% if item.problem_status.status_en == 'Pending' %}
+                                            <div class="card" style="width:97%;background-color: #fff0f0;"
+                                                 data-position="Wait" data-num="{{ item.problem_no }}">
+                                                <div class="card-header" style="width:97%">
+                                                    <h6 class="card-title"><a
+                                                            href="{% url 'problem_detail' pk=item.pk %}">{{ item.problem_no }}</a>
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body" style="width:97%;">
+                                                    <span><span class="badge badge-primary mr-2" style="font-size: 14px">{{ item.plant }}</span>{{ item.title }}</span>
+                                                    <span class="align-bottom" style="float:right">
+                                                        {% if item.owner.shot %}
+                                                            <img src="{{ item.owner.shot.url }}" alt="{{ item.problem_no }}" class="rounded-circle"
+                                                                 style="height:35px;width:35px;">
+                                                        {% else %}
+                                                            <img src="{% static 'base/default_shot.png' %}" alt="{{ item.problem_no }}"
+                                                                 class="rounded-circle" style="height:35px;width:35px;">
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -196,7 +328,7 @@
     </div>
     <div class="card">
         <div class="card-header" style="background-color: #e0e0e0">
-            Project
+            {% trans "Project" %}
         </div>
         <div class="card-body">
             <table class="table table-striped table-hover" id="table1">
@@ -260,7 +392,7 @@
     </div>
     <div class="card">
         <div class="card-header" style="background-color: #e0e0e0">
-            Request
+            {% trans "Request" %}
         </div>
         <div class="card-body">
             <table class="table table-striped table-hover" id="table1">
@@ -304,13 +436,13 @@
                         <td>
                             {{ request.title }}
                         </td>
-                        <td>
+                        <td style="min-width: 105px">
                             {{ request.status }}
                         </td>
                         <td>
                             {{ request.level }}
                         </td>
-                        <td>
+                        <td style="min-width: 153px">
                             {{ request.owner }}
                         </td>
                         <td>
@@ -322,13 +454,12 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-
             </table>
         </div>
     </div>
     <div class="card">
         <div class="card-header" style="background-color: #e0e0e0">
-            Problem
+            {% trans "Problem" %}
         </div>
         <div class="card-body">
             <table class="table table-striped table-hover">
@@ -343,7 +474,7 @@
                         <th>
                             {% trans "title" %}
                         </th>
-                        <th>
+                        <th style="min-width: 93px">
                             {% trans "replies" %}
                         </th>
                         <th>
@@ -352,7 +483,7 @@
                         <th>
                             {% trans "create_at" %}
                         </th>
-                        <th>
+                        <th style="min-width: 150px">
                             {% trans "update_by" %}
                         </th>
                         <th>
@@ -400,18 +531,21 @@
         let urlParams = new URLSearchParams(window.location.search);
 
         // Set initial button text
-        dashboard_filter_btn.textContent = urlParams.has('filter') ? "All" : "My Task";
+        const allText = "{{ _('All') }}";
+        const myTaskText = "{{ _('My Task') }}";
+        const myTaskTextLower = "{{ _('my task') }}";
+        dashboard_filter_btn.textContent = urlParams.has('filter') ? allText : "{{ _('My Task') }}";
 
         dashboard_filter_btn.addEventListener('click', () => {
             // Create new params object to avoid mutation issues
             const newParams = new URLSearchParams(window.location.search);
 
-            if (dashboard_filter_btn.textContent.toLowerCase().trim() === "my task") {
+            if (dashboard_filter_btn.textContent === myTaskText) {
                 newParams.set('filter', 'true');
-                dashboard_filter_btn.textContent = "All";
+                dashboard_filter_btn.textContent = allText;
             } else {
                 newParams.delete('filter');
-                dashboard_filter_btn.textContent = "My Task";
+                dashboard_filter_btn.textContent = myTaskText;
             }
 
             // Update the URL

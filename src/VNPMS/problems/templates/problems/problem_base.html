@@ -13,42 +13,76 @@
                 <a href="/projects/manage/{{ problem.project.id }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
             {% endif %}
             <div class="ml-md-auto">
-                <a class="btn btn-warning btn-sm" href="{% url 'problem_edit' pk %}?p={{ problem.project.pk }}" role="button"><i class="far fa-edit"></i>{% trans "problem_edit" %}</a>
-                <a class="btn btn-warning btn-sm" href="{% url 'problem_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>{% trans "problem_delete" %}</a>
+                {% if request.user.user_type.type_name != "Requester" or problem.problem_status.status_en == "Wait For Assign" %}
+                    <a class="btn btn-info btn-sm" href="{% url 'send_problem_notification' %}?problem_id={{ pk }}" role="button"><i class="fa fa-bell mr-1" aria-hidden="true"></i>{% trans "Send Notification" %}</a>
+                    <a class="btn btn-warning btn-sm" href="{% url 'problem_edit' pk %}?p={{ problem.project.pk }}" role="button"><i class="far fa-edit"></i>&nbsp;{% trans "problem_edit" %}</a>
+                    <a class="btn btn-danger btn-sm" href="{% url 'problem_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>&nbsp;{% trans "problem_delete" %}</a>
+                {% endif %}
             </div>
         </div>
     </div>
     <div class="card-body">
-        <h1 class="font-weight-bold pt-3 pl-3">{{ problem.title }}&nbsp&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ problem.problem_no }}</span></small></h1>
+        <div class="row col-md-12 d-flex justify-content-between align-items-center">
+            <h1 class="font-weight-bold pt-3 pl-3">{{ problem.title }}&nbsp&nbsp
+                <small style="font-size: 50%"><span class="badge badge-warning">{{ problem.problem_no }}</span></small>
+            </h1>
+            <div class="d-flex align-items-center" style="gap: 8px;">
+            {% if request.user.user_type_id != 4 %}
+                {% if problem.owner %}
+                    <form method="post" action="{% url 'problem_change_status' %}" id="status_form">
+                        {% csrf_token %}
+                        {{ status_html | safe }}
+                    </form>
+                {% else %}
+                    <a class="btn btn-success" href="{% url 'problem_receive' %}?r={{ pk }}"
+                       role="button">{% trans "Receive Problem" %}</a>
+                {% endif %}
+            {% endif %}
+            {% if request.user.user_type.type_name == 'Normal' and problem.problem_status.status_en == 'On-Going' %}
+                <button class="btn btn-primary"
+                        id="checkForUserBtn"
+                        data-problem-id="{{ problem.pk }}"
+                        onclick="checkForUser(this)">
+                    {% trans 'Check for User' %}
+                </button>
+            {% elif request.user.user_type.type_name != 'Normal' and problem.problem_status.status_en == "Check For User" %}
+                <form method="post" action="{% url 'problem_change_status' %}">
+                {% csrf_token %}
+                    <input hidden name="o_id" value="{{ problem.pk }}">
+                    <input hidden name="status_id" value="3">
+                    <button class="btn btn-success"
+                            type="submit">
+                        {% trans 'Close Problem' %}
+                    </button>
+                </form>
+            {% endif %}
+            </div>
+        </div>
         <div class="col-md-12">
                 <table class="table table-bordered table-sm col-12">
                     <tr>
                         <td class="text-center align-middle table-dark">{% trans "project_belong" %}：</td>
                         <td class="text-center align-middle">{{ problem.project }}</td>
-                        <td class="text-center align-middle table-dark">問題類型：</td>
-                        <td class="text-center align-middle">{{ problem.problem_type }}</td>
-                        <td class="text-center align-middle table-dark">問題狀態：</td>
+                        <td class="text-center align-middle table-dark">{% trans "Problem Type" %}：</td>
+                        <td class="text-center align-middle">{{ problem.problem_type|default:"" }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "Issue Status" %}：</td>
                         <td class="text-center align-middle">{{ problem.problem_status }}</td>
                     </tr>
                     <tr>
-                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "owner" %}：</td>
-                        <td class="text-center align-middle">{{ problem.create_by }}</td>
+                        <td class="text-center align-middle table-dark" style="width:15%;">{% trans "Issue Owner" %}：</td>
+                        <td class="text-center align-middle">{{ problem.owner.username }}</td>
                         <td class="text-center align-middle table-dark" style="width:15%;">{% trans "create_at" %}：</td>
-                        <td class="text-center align-middle">{{ problem.create_at|date:"Y-m-d H:i:s" }}</td>
+                        <td class="text-center align-middle">{{ problem.problem_datetime }}</td>
                         <td class="text-center align-middle table-dark">{% trans "update_at" %}：</td>
                         <td class="text-center align-middle">{{ problem.update_at|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                     <tr>
-                        <td class="text-center align-middle table-dark">Issue Owner ：</td>
-                        <td class="text-center align-middle">{{ problem.requester }}</td>
-                        <td class="text-center align-middle table-dark">Record Date ：</td>
-                        <td class="text-center align-middle">{{ problem.problem_datetime }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center align-middle table-dark">Plsnt. :</td>
+                        <td class="text-center align-middle table-dark">{% trans "Plant" %} :</td>
                         <td class="text-center align-middle">{{ problem.plant }}</td>
-                        <td class="text-center align-middle table-dark">Dept. :</td>
-                        <td class="text-center align-middle">{{ problem.dept }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "Dept." %} :</td>
+                        <td class="text-center align-middle">{{ problem.dept|default:"" }}</td>
+                        <td class="text-center align-middle table-dark">{% trans "Requester" %} :</td>
+                        <td class="text-center align-middle">{{ problem.requester }}</td>
                     </tr>
                 </table>
                 {% if files %}
@@ -91,12 +125,72 @@
 
                 {% endif %}
                 <table class="table table-bordered table-sm col-12">
-                    <tr>
-                        <td style="padding: .7rem;font-size: 1.2em;">
-                            {{ problem.desc|safe }}
-                        </td>
-                    </tr>
+                    <table class="table table-bordered table-sm col-12">
+                        <thead>
+                            <tr>
+                                <th class="font-weight-bold bg-light">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: .7rem;font-size: 1.2em;">
+                                    {{ problem.desc|safe }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </table>
+
+                {% if problem.root_cause %}
+                    <table class="table table-bordered table-sm col-12">
+                        <thead>
+                            <tr>
+                                <th class="font-weight-bold bg-light">Root cause</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: .7rem;font-size: 1.2em;">
+                                    {{ problem.root_cause|safe }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if problem.short_term %}
+                    <table class="table table-bordered table-sm col-12">
+                        <thead>
+                            <tr>
+                                <th class="font-weight-bold bg-light">Short term</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: .7rem;font-size: 1.2em;">
+                                    {{ problem.short_term|safe }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if problem.long_term %}
+                    <table class="table table-bordered table-sm col-12">
+                        <thead>
+                            <tr>
+                                <th class="font-weight-bold bg-light">Long term</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: .7rem;font-size: 1.2em;">
+                                    {{ problem.long_term|safe }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         <div class="col-12">
                 {% for reply in problem_replys %}
@@ -124,14 +218,42 @@
                 <form action="{% url 'problem_reply_create' pk %}" method="post">
                 {% csrf_token %}
                 {% crispy problem_reply_form %}
-                    <button type="submit" class="btn btn-warning pl-5 pr-5" id="send">Reply</button>
+                    <button type="submit" class="btn btn-warning pl-5 pr-5" id="send">{% trans "Reply" %}</button>
                 </form>
         </div>
     </div>
 </div>
 <script src="{% static 'highlight\highlight.pack.js' %}"></script>
 <link rel="stylesheet"  type="text/css" href="{% static 'highlight\styles\default.css' %}">
-<script>hljs.initHighlightingOnLoad();</script>
+<script>
+    hljs.initHighlightingOnLoad();
+
+    function change_status(status) {
+        $("#status_id").val(status);
+        $("#status_form").submit();
+    }
+
+    function checkForUser() {
+        const checkForUserBtn = document.getElementById('checkForUserBtn');
+        const problemId = checkForUserBtn.getAttribute('data-problem-id');
+
+        fetch(`{% url 'check_for_user' %}?problem_id=${problemId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to update status');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.reload()
+                } else {
+                    alert("Failed to update problem: " + (data.error || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+            });
+    }
+</script>
 
 <script src="{% static 'bootstrap-table-develop\src\bootstrap-table.js' %}"></script>
 <link rel="stylesheet"  type="text/css" href="{% static 'bootstrap-table-develop\src\bootstrap-table.css' %}">

@@ -14,12 +14,20 @@ from django_select2 import forms as s2forms
 class RequestHistoryForm(forms.ModelForm):
     class Meta:
         model = Request
-        fields = ('status', 'start_date', 'due_date',)
+        fields = ('status', 'owner', 'plant', 'start_date', 'due_date',)
 
     status = forms.ModelChoiceField(required=False, label=_(
         'status'), queryset=Status.objects.all(), initial=1)
-    start_date = forms.DateField(label="建立日期(起)")
-    due_date = forms.DateField(label="建立日期(迄)")
+    owner = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(),
+        required=False,
+        label=_('Owner'),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    plant = forms.ChoiceField(required=False, label=_("Plant"),
+                              choices=[('', '---------'), ('GD', 'GD'), ('LK', 'LK'), ('LT', 'LT')])
+    start_date = forms.DateField(label=_("Creation Date (From)"))
+    due_date = forms.DateField(label=_("Creation Date (To)"))
 
     def __init__(self, *args, submit_title='Submit', **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,10 +37,13 @@ class RequestHistoryForm(forms.ModelForm):
         self.helper.form_show_errors = True
 
         self.helper.layout = Layout(
-            Div(Div('start_date', css_class='col-md-3'),
-                Div('due_date', css_class='col-md-3'),
-                Div('status', css_class='col-md-3'),
-                Div(Submit('submit', '查詢', css_class='btn btn-info'), css_class='col-md-3 d-flex align-items-center'),
+            Div(Div('start_date', css_class='col-md-2'),
+                Div('due_date', css_class='col-md-2'),
+                Div('plant', css_class='col-md-2'),
+                Div('owner', css_class='col-md-2'),
+                Div('status', css_class='col-md-2'),
+                Div(Submit('submit', _('search'), css_class='btn btn-info'),
+                    css_class='col-md-2 p-0 d-flex align-items-center', style='height: 100px;'),
                 css_class='row'),
         )
 
@@ -145,10 +156,12 @@ class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = (
-            'title', 'start_date', 'due_date', 'process_rate', 'estimate_time', 'level', 'owner', 'desc',
+            'title', 'start_date', 'due_date', 'process_rate', 'estimate_time', 'level', 'plant', 'owner', 'desc',
             'status', 'actual_date', 'project', 'belong_to',)
 
     level = forms.ModelChoiceField(required=True, label=_('level'), queryset=Level.objects.all(), initial=2)
+    plant = forms.ChoiceField(required=False, label=_("Plant"),
+                              choices=[('', '---'), ('GD', 'GD'), ('LK', 'LK'), ('LT', 'LT')])
     title = forms.CharField(required=True, label=_('title'))
     desc = forms.CharField(required=False, label=_('desc'), widget=CKEditorUploadingWidget())
     status = forms.ModelChoiceField(required=True, label=_('status'), queryset=Status.objects.all(), initial=1)
@@ -199,7 +212,10 @@ class RequestForm(forms.ModelForm):
                 Div('level', css_class='col-md-6'),
                 Div('status', css_class='col-md-6'),
                 css_class='row'),
-            Div('title'),
+            Div(
+                Div('plant', css_class='col-md-3'),
+                Div('title', css_class='col-md-9'),
+                css_class='row'),
             Div('desc'),
             Div('actual_date'),
             Div(Div('start_date', css_class='col-md-6'),

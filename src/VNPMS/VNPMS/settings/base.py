@@ -79,6 +79,22 @@ CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = 'pillow'
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'height': 'auto',  # Auto-adjust height
+        'width': '100%',  # Full-width responsive
+        'uiColor': '#f8f9fa',
+        'extraPlugins': 'autogrow,image2',  # Auto-grow & modern image handling
+        'removePlugins': 'resize',  # Disable fixed-size resizing
+        'autoGrow_minHeight': 200,
+        'autoGrow_maxHeight': 800,
+        'contentsCss': '/static/css/ckeditor-responsive.css',  # Custom CSS
+        'filebrowserUploadUrl': '/ckeditor/upload/',  # Keep uploads working
+        'image2_alignClasses': ['img-left', 'img-center', 'img-right'],
+        'image2_responsive': True,  # Enable responsive images
+    },
+}
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -246,7 +262,6 @@ LANGUAGES = [
     ('en', 'English'),
     ('zh-hant', '繁體中文'),
     ('vi', 'Tiếng Việt'),
-
 ]
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
@@ -258,3 +273,5 @@ EMAIL_PORT = 25  #TLS通訊埠號
 EMAIL_USE_TLS = False  #開啟TLS(傳輸層安全性)
 EMAIL_HOST_USER = ''  #寄件者電子郵件
 EMAIL_HOST_PASSWORD = ''
+
+WECOM_APP_PROBLEM = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=f1025466-a7e5-4f2c-a72c-9cba36adf3ba'

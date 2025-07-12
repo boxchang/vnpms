@@ -19,4 +19,39 @@
       <input class="btn btn-success" type="submit" value="儲存" />
     </div>
 </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const plantSelect = document.getElementById('id_plant');
+            const deptSelect = document.getElementById('id_unit');
+            deptSelect.disabled = true;
+
+            if (plantSelect) {
+                plantSelect.addEventListener('change', function () {
+                    const plantId = this.value;
+
+                    fetch(`{% url 'load_depts' %}?plant_id=${plantId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Clear existing options
+                            deptSelect.innerHTML = '';
+
+                            // Add default option
+                            const defaultOption = document.createElement('option');
+                            defaultOption.text = '---------';
+                            defaultOption.value = '';
+                            deptSelect.add(defaultOption);
+
+                            data.depts.forEach(function (dept) {
+                                const option = document.createElement('option');
+                                option.value = dept.id;
+                                option.text = dept.unitName;
+                                deptSelect.add(option);
+                            });
+
+                            deptSelect.disabled = false;
+                        });
+                });
+            }
+        });
+    </script>
 {% endblock sub_container %}

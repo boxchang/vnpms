@@ -11,9 +11,10 @@
             <a href="/requests/{{ data.belong_to.request_no }}" class="btn btn-warning"><i class="fas fa-arrow-left fa-1x"></i></a>
         {% endif %}
             <div class="ml-md-auto">
+                <a class="btn btn-info btn-sm" href="{% url 'send_request_notification' %}?request_id={{ pk }}" role="button"><i class="fa fa-bell mr-1" aria-hidden="true"></i>{% trans "Send Notification" %}</a>
                 {% if user.is_authenticated %}
-                <a class="btn btn-warning btn-sm" href="{% url 'request_edit' pk %}" role="button"><i class="far fa-edit"></i>{% trans "request_edit" %}</a>
-                <a class="btn btn-warning btn-sm" href="{% url 'request_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>{% trans "request_delete" %}</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'request_edit' pk %}" role="button"><i class="far fa-edit"></i>&nbsp;{% trans "request_edit" %}</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'request_delete' pk %}" role="button" onclick="return confirm('Are you sure?')"><i class="fas fa-times"></i>&nbsp;{% trans "request_delete" %}</a>
                 {% endif %}
             </div>
         </div>
@@ -24,7 +25,7 @@
                 {{ data.title }}&nbsp&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ data.request_no }}</span></small>&nbsp<small style="font-size: 50%"><span class="badge badge-warning">{{ data.status }}</span></small>
                 {% if data.is_test %}
                     {% if not data.test_data %}
-                        <small style="font-size: 50%"><span class="badge badge-warning">Not test yet</span></small>&nbsp
+                        <small style="font-size: 50%"><span class="badge badge-warning">Not test yet</span></small>&nbsp;
                     {% endif %}
                 {% endif %}
                 <small style="font-size: 50%">
@@ -166,7 +167,7 @@
             <div class="card-header pb-1 pt-1">
                 <div class="row">
                     <div class="col-sm-11 align-self-center">
-                        COMMENT
+                        {% trans "COMMENT" %}
                     </div>
                     <div class="ml-md-auto">
                         <button type="submit" class="btn btn-warning btn-sm" id="send">{% trans "New" %}</button>
@@ -240,7 +241,7 @@ $(function(){
             field: 'update_at', title: '{% trans "update_at" %}', sortable:true
         }, {
             field: 'pk', title: '鍵值', visible:false
-        }]
+        }];
 
     createSimpleTable("#problem_table",data_column,5,"/api/requests/{{ data.pk }}/problems");
 
@@ -273,7 +274,7 @@ $(function(){
             field: 'sub_request', title:'{% trans "Sub" %}', titleTooltip: '{% trans "subrequire" %}', sortable:true, width: '7%', align:'center'
         }, {
             field: 'id', title: '鍵值', visible:false
-        }]
+        }];
 
 createBootstrapTable("#request_table",data_column,5,"/api/requests/{{ pk }}/requests", "/api/requests/");
 
